@@ -77,6 +77,14 @@ def make_ab_move(game: OAnQuan) -> Move:
     return make_random_move(game)
 
 
+@app.post("/game/hint")
+def get_hint(game: OAnQuan) -> dict[str, t.Any]:
+    """Get a hint for the next move."""
+    if move := minimax(game, player=game.get_current_player())[1]:
+        return move.model_dump()
+    return make_random_move(game).model_dump()
+
+
 @app.post("/game/move/{level}")
 def make_move(game: OAnQuan, move: Move, level: Level):
     """Make a move and get the computer's response"""

@@ -9,7 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "pinia": "^2.1.7",
+    "@supabase/supabase-js": "^2.45.4",
+    "axios": "^1.7.7",
+    "flag-icons": "^7.2.3",
+    "pinia": "^2.2.2",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"
   },

@@ -1,0 +1,345 @@
+<script setup>
+import ComputerCitizen from "@/components/ComputerCitizen.vue";
+import Counter from "@/components/Counter.vue";
+import Modal from "@/components/Modal.vue";
+import Quan from "@/components/Quan.vue";
+import UserCitizen from "@/components/UserCitizen.vue";
+import { useStore } from "@/stores/state";
+import axios from "axios";
+import { onBeforeMount, onBeforeUnmount, ref } from "vue";
+
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+const DELAY = 700;
+const FAST_DELAY = 200;
+const QUAN_FIELDS = [0, 6];
+const COMPUTER_FIELDS = [1, 2, 3, 4, 5];
+const PLAYER_FIELDS = [11, 10, 9, 8, 7];
+const INITIAL_BOARD = [10, 5, 5, 5, 5, 5, 10, 5, 5, 5, 5, 5];
+const INITIAL_SCORE = { PLAYER: 0, COMPUTER: 0 };
+const BOARD_SIZE = 12;
+
+const fast = ref(false);
+const board = ref(INITIAL_BOARD);
+const score = ref(INITIAL_SCORE);
+const turn = ref("PLAYER");
+const winner = ref("");
+const selectedCitizen = ref(null);
+const modal = ref(null);
+const left = ref(true);
+const right = ref(true);
+
+const props = defineProps(["level"]);
+const store = useStore();
+
+function color_field(pos, color) {
+    const field = document.getElementById(`field${pos}`);
+    if (!field) return;
+    field.classList.add(color);
+}
+
+function uncolor_field(pos, color) {
+    const field = document.getElementById(`field${pos}`);
+    if (!field) return;
+    field.classList.remove(color);
+}
+
+function capitalize(string) {
+    if (!string) return "";
+    return string[0].toUpperCase() + string.slice(1).toLowerCase();
+}
+
+function getNormalizedPos(pos) {
+    let m = Math.floor(pos / BOARD_SIZE);
+    return pos - m * BOARD_SIZE;
+}
+
+
+function toggleFast() {
+    fast.value = !fast.value;
+}
+
+function setSelectedCitizen(citizen) {
+    if (selectedCitizen.value == citizen) {
+        selectedCitizen.value = null;
+    } else {
+        selectedCitizen.value = citizen;
+    }
+}
+
+function undo() {
+    store.undo();
+    const lastState = store.getCurrentState();
+    board.value = lastState.board;
+    score.value = lastState.score;
+    turn.value = lastState.turn ? "COMPUTER" : "PLAYER";
+    winner.value = "";
+
+}
+
+let hintsLeft = ref(3);
+async function getHint() {
+    if (hintsLeft.value == 0) {
+        return;
+    }
+    const currentState = store.getCurrentState();
+    try {
+        const response = await axios.post(BACKEND_URL + "/game/hint/", currentState);
+        hintsLeft.value -= 1;
+        if (response.data.direction == 1) {
+            left.value = true;
+            right.value = false;
+        } else {
+            left.value = false;
+            right.value = true;
+        }
+        selectedCitizen.value = response.data.pos;
+    } catch (error) {
+        console.error("Error fetching hint:", error);
+    }
+}
+
+defineExpose({
+    fast,
+    toggleFast,
+    undo,
+    getHint,
+    hintsLeft,
+});
+
+async function updateAllowedMoves() {
+    let fields = turn.value == "COMPUTER" ? COMPUTER_FIELDS : PLAYER_FIELDS;
+    let allowed_moves = fields.filter(pos => board.value[pos] > 0);
+    let isEnd = QUAN_FIELDS.every(pos => board.value[pos] == 0);
+    if (allowed_moves.length > 0 || isEnd) {
+        return
+    }
+    score.value[turn.value] -= fields.length;
+    for (let i = 0; i < fields.length; i++) {
+        board.value[fields[i]] = 1;
+    }
+}
+
+function switchTurn() {
+    turn.value = turn.value == "COMPUTER" ? "PLAYER" : "COMPUTER";
+}
+
+function delay(time = fast.value ? FAST_DELAY : DELAY) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+}
+
+async function animateMove(pos, direction) {
+    color_field(pos, turn.value == "COMPUTER" ? "green" : "blue");
+    let toDistribute = board.value[pos];
+    board.value[pos] = 0;
+    let index = pos;
+    await delay();
+
+    for (let i = 1; i <= toDistribute; i++) {
+        index = getNormalizedPos(pos + i * direction);
+        board.value[index] += 1;
+        await delay();
+    }
+
+    uncolor_field(pos, turn.value == "COMPUTER" ? "green" : "blue");
+    index = getNormalizedPos(index + direction);
+    if (board.value[index] == 0) {
+        let next_index = getNormalizedPos(index + direction);
+        while ((board.value[index] == 0) && (board.value[next_index] != 0)) {
+            color_field(index, "red");
+            await delay();
+            score.value[turn.value] += board.value[next_index];
+            board.value[next_index] = 0;
+            uncolor_field(index, "red");
+            index = getNormalizedPos(next_index + direction);
+            next_index = getNormalizedPos(index + direction);
+        }
+
+        switchTurn();
+        await updateAllowedMoves();
+    }
+    else if (QUAN_FIELDS.includes(index)) {
+        switchTurn();
+        await updateAllowedMoves();
+    } else {
+        await animateMove(index, direction);
+    }
+    await delay();
+}
+
+async function start_game() {
+    board.value = INITIAL_BOARD;
+    score.value = INITIAL_SCORE;
+    winner.value = "";
+    try {
+
+        const response = await axios.get(BACKEND_URL + "/game/start/" + props.level);
+        store.addState(response.data.game);
+        let next_move = response.data.last_move;
+        if (next_move) {
+            let citizens = document.querySelectorAll('.clickable');
+            citizens.forEach(citizen => {
+                citizen.classList.remove('clickable');
+            });
+            turn.value = "COMPUTER";
+            await animateMove(next_move.pos, next_move.direction);
+            citizens.forEach(citizen => {
+                citizen.classList.add('clickable');
+            });
+        }
+        else {
+            turn.value = "PLAYER"
+        }
+
+    } catch (error) {
+        console.error("Error fetching game state:", error);
+    }
+}
+
+async function makeMove(pos, direction) {
+    let colored = document.querySelectorAll('.citizen.green, .citizen.blue');
+    colored.forEach(citizen => {
+        citizen.classList.remove('green');
+        citizen.classList.remove('blue');
+    });
+    try {
+        let citizens = document.querySelectorAll('.clickable')
+        citizens.forEach(citizen => {
+            citizen.classList.remove('clickable');
+        });
+        turn.value = "PLAYER";
+        await animateMove(pos, direction);
+        const response = await axios.post(BACKEND_URL + "/game/move/" + props.level, {
+            game: store.getCurrentState(),
+            move: { pos, direction },
+        });
+        store.addState(response.data.game);
+        let next_move = response.data.last_move;
+        if (next_move) {
+            turn.value = "COMPUTER";
+            await animateMove(next_move.pos, next_move.direction);
+        }
+        if (response.data.winner) {
+            winner.value = response.data.winner;
+            if (winner.value == "PLAYER") {
+                while (modal.value == null) {
+                    await delay(500);
+                }
+                modal.value.showModal();
+            }
+        }
+        if (!winner.value && JSON.stringify(board.value) != JSON.stringify(store.getCurrentState().board)) {
+            console.error("Board state mismatch:", board.value, store.getCurrentState().board);
+        }
+        else {
+            citizens.forEach(citizen => {
+                citizen.classList.add('clickable');
+            });
+        }
+    } catch (error) {
+        console.error("Error making move:", error);
+    }
+}
+
+function getGameScore() {
+    const levelBonus = { "easy": 1, "medium": 2, "hard": 3 };
+    let result = (score.value["PLAYER"] - score.value["COMPUTER"] + (levelBonus[props.level] * 70) + (hintsLeft.value * 10)) * 100;
+    return Math.round(result);
+}
+
+function handleClickOutside(event) {
+    left.value = true;
+    right.value = true;
+    if (!event.target.closest('.citizen')) {
+        selectedCitizen.value = null;
+    }
+}
+
+onBeforeMount(async () => {
+    document.addEventListener('click', handleClickOutside);
+    console.log(store.getStateHistory());
+    await start_game();
+});
+
+onBeforeUnmount(() => {
+    store.clearHistory();
+    document.removeEventListener('click', handleClickOutside);
+});
+</script>
+
+<template>
+    <span v-if="winner == 'Draw'">
+        It's a draw! 🤝
+    </span>
+    <span v-else-if="winner">
+        {{ capitalize(winner) }} wins! 🎉
+    </span>
+    <span v-else>
+        {{ capitalize(turn) }}'s turn!
+    </span>
+    <span>🤖
+        <Counter :count="score['COMPUTER']" id="comp_score" />
+    </span>
+
+    <div class="board">
+        <Quan v-for="id in QUAN_FIELDS" :key="id" :id="id" :count="board[id]" />
+        <ComputerCitizen v-for="id in COMPUTER_FIELDS" :key="id" :id="id" :count="board[id]" />
+        <UserCitizen v-for="id in PLAYER_FIELDS" :key="id" :id="id" :count="board[id]"
+            :selectedCitizen="selectedCitizen" :makeMove="makeMove" :setSelectedCitizen="setSelectedCitizen"
+            :left="left" :right="right" />
+    </div>
+    <span>🫵
+        <Counter :count="score['PLAYER']" id="you_score" />
+    </span>
+    <Modal v-if="winner == 'PLAYER'" :score="getGameScore()" :level="props.level" ref="modal" />
+</template>
+
+<style scoped>
+span {
+    font-weight: 900;
+    display: flex;
+    flex-direction: row;
+}
+
+div {
+    width: 100%;
+}
+
+.green {
+    background-color: #8ae994;
+    mix-blend-mode: multiply;
+}
+
+.blue {
+    background-color: #aadefd;
+    mix-blend-mode: multiply;
+}
+
+.red {
+    background-color: rgb(255, 155, 155);
+    mix-blend-mode: multiply;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: 1.25fr repeat(5, 1fr) 1.27fr;
+    grid-template-rows: repeat(2, 1fr);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    background-image: url('@/assets/board.svg');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    z-index: 1;
+}
+
+#field0 {
+    grid-area: 1 / 1 / 3 / 2;
+    border-radius: 100% 0 0 100% / 50% 0 0 50%;
+    margin: 5% 0 5% 2%;
+}
+
+#field6 {
+    grid-area: 1 / 7 / 3 / 8;
+    border-radius: 0 100% 100% 0 / 0 50% 50% 0;
+    margin: 5% 10% 5% 0;
+}
+</style>
