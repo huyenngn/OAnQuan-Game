@@ -1,12 +1,11 @@
 # Ô Ăn Quan
 
-![Deploy backend](https://github.com/huyenngn/oanquan/actions/workflows/deploy.yml/badge.svg)
-![Deploy frontend](https://github.com/huyenngn/oanquan/actions/workflows/gh-pages.yml/badge.svg)
+![Deploy](https://github.com/huyenngn/oanquan/actions/workflows/deploy.yml/badge.svg)
 ![License: MIT](https://img.shields.io/github/license/huyenngn/oanquan)
 
 A Vietnamese traditional board game, Ô Ăn Quan, with an AI that uses the Minimax algorithm with Alpha-Beta pruning to play against human players.
 
-To play the game, check it out at [huyenngn.github.io/oanquan](http://35.239.5.44/).
+To play the game, check it out at [huyenngn.github.io/oanquan](https://huyenngn.github.io/oanquan).
 
 ## Quick Start
 
@@ -26,6 +25,8 @@ Build and run the app with Docker:
 docker compose build
 docker compose up
 ```
+
+The API server will be running at `http://localhost:8000` and the frontend will be served at `http://localhost`.
 
 ## Development
 
