@@ -42,12 +42,30 @@ jobs:
           echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u huyenngn --password-stdin
           docker push huyenngn/frontend
 
-      - name: Deploy backend to Cloud Run
+      - name: Deploy backend to Cloud Run (us-central1)
         run: |
-          gcloud run deploy backend-api \
+          gcloud run deploy backend-api-us-central1 \
             --image huyenngn/backend-api \
             --platform managed \
             --region us-central1 \
+            --project o-an-quan-ai \
+            --allow-unauthenticated
+
+      - name: Deploy backend to Cloud Run (europe-west4)
+        run: |
+          gcloud run deploy backend-api-europe-west4 \
+            --image huyenngn/backend-api \
+            --platform managed \
+            --region europe-west4 \
+            --project o-an-quan-ai \
+            --allow-unauthenticated
+
+      - name: Deploy backend to Cloud Run (asia-east1)
+        run: |
+          gcloud run deploy backend-api-asia-east1 \
+            --image huyenngn/backend-api \
+            --platform managed \
+            --region asia-east1 \
             --project o-an-quan-ai \
             --allow-unauthenticated
 
@@ -56,7 +74,6 @@ jobs:
           gcloud run deploy frontend \
             --image huyenngn/frontend \
             --platform managed \
-            --region us-central1 \
+            --region europe-west4 \
             --project o-an-quan-ai \
-            --allow-unauthenticated \
-            --set-env-vars VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }},VITE_SUPABASE_KEY=${{ secrets.VITE_SUPABASE_KEY }},VITE_API_URL=${{ secrets.VITE_API_URL }}
+            --allow-unauthenticated
