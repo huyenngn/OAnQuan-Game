@@ -1,4 +1,5 @@
-name: Deploy
+name: Deploy to Cloud Run
+
 on:
   push:
     branches:
@@ -7,25 +8,55 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      # Checkout the latest code from the main branch
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      # Set up SSH agent with the private key stored in GitHub Secrets
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.5.3
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
         with:
-          ssh-private-key: ${{ secrets.GCE_SSH_PRIVATE_KEY }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      # SSH into GCE VM and pull the latest code, build, and deploy
-      - name: Deploy to GCE VM
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: o-an-quan-ai
+
+      - name: Configure Docker to use gcloud as a credential helper
+        run: gcloud auth configure-docker --quiet
+
+      - name: Build and push backend Docker image
         run: |
-          ssh -o StrictHostKeyChecking=no nganhuyennguyenthi@35.239.5.44 << 'EOF'
-            cd oanquan
-            git fetch origin main
-            git reset --hard origin/main
-            docker compose down
-            docker compose build
-            docker compose up -d
-          EOF
+          docker build -t huyenngn/backend-api -f Dockerfile .
+          echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u huyenngn --password-stdin
+          docker push huyenngn/backend-api
+
+      - name: Build and push frontend Docker image
+        run: |
+          docker build \
+            --build-arg VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }} \
+            --build-arg VITE_SUPABASE_KEY=${{ secrets.VITE_SUPABASE_KEY }} \
+            --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
+            -t huyenngn/frontend -f frontend/Dockerfile ./frontend
+          echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u huyenngn --password-stdin
+          docker push huyenngn/frontend
+
+      - name: Deploy backend to Cloud Run
+        run: |
+          gcloud run deploy backend-api \
+            --image huyenngn/backend-api \
+            --platform managed \
+            --region us-central1 \
+            --project o-an-quan-ai \
+            --allow-unauthenticated
+
+      - name: Deploy frontend to Cloud Run
+        run: |
+          gcloud run deploy frontend \
+            --image huyenngn/frontend \
+            --platform managed \
+            --region us-central1 \
+            --project o-an-quan-ai \
+            --allow-unauthenticated \
+            --set-env-vars VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }},VITE_SUPABASE_KEY=${{ secrets.VITE_SUPABASE_KEY }},VITE_API_URL=${{ secrets.VITE_API_URL }}

@@ -5,7 +5,7 @@
 
 A Vietnamese traditional board game, Ô Ăn Quan, with an AI that uses the Minimax algorithm with Alpha-Beta pruning to play against human players.
 
-To play the game, check it out at [huyenngn.github.io/oanquan](https://huyenngn.github.io/oanquan).
+To play the game, check it out at [oanquan.fun](https://oanquan.fun).
 
 ## Quick Start
 
@@ -14,7 +14,7 @@ You can host the API server and the frontend on your own machine.
 Create a `.env` file in the frontend directory (optional):
 
 ```sh
-echo "VITE_API_URL=http://{EXTERNAL_IP}:8000" >> frontend/.env
+echo "VITE_API_URL=http://{EXTERNAL_IP}:8080" >> frontend/.env
 echo "VITE_SUPABASE_URL={SUPABASE_URL}" >> frontend/.env
 echo "VITE_SUPABASE_KEY={SUPABASE_KEY}" >> frontend/.env
 ```
@@ -26,7 +26,7 @@ docker compose build
 docker compose up
 ```
 
-The API server will be running at `http://localhost:8000` and the frontend will be served at `http://localhost`.
+The API server will be running at `http://localhost:8080` and the frontend will be served at `http://localhost`.
 
 ## Development
 
@@ -56,7 +56,7 @@ To run the backend, use the following command:
 python -m oanquan.api
 ```
 
-The backend server will be running at `http://localhost:8000` and the live frontend will be served at `http://localhost:5173`.
+The backend server will be running at `http://localhost:8080` and the live frontend will be served at `http://localhost:5173`.
 
 ## Features
 

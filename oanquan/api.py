@@ -1,6 +1,7 @@
 """API for the O An Quan game."""
 
 import enum
+import os
 import random
 import typing as t
 
@@ -131,4 +132,5 @@ def make_move(game: OAnQuan, move: Move, level: Level):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run(app, host="0.0.0.0", port=port)

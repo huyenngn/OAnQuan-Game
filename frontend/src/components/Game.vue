@@ -8,7 +8,7 @@ import { useStore } from "@/stores/state";
 import axios from "axios";
 import { onBeforeMount, onBeforeUnmount, ref } from "vue";
 
-const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8080';
 const DELAY = 700;
 const FAST_DELAY = 200;
 const QUAN_FIELDS = [0, 6];
