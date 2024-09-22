@@ -15,6 +15,14 @@ a {
     text-decoration: inherit;
 }
 
+select {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+    color: inherit;
+}
+
 body {
     min-height: 100vh;
     color: var(--color-text);

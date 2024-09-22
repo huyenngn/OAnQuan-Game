@@ -2,8 +2,11 @@
 import Button from '@/components/Button.vue';
 import Counter from '@/components/Counter.vue';
 import Game from '@/components/Game.vue';
+import { useLanguage } from '@/stores/language';
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
+
+const language = useLanguage();
 
 const game = ref(null);
 
@@ -44,7 +47,7 @@ function undo() {
         </Button>
         <RouterLink to="/">
             <Button color="orange">
-                BACK
+                {{ language.getText("back") }}
             </Button>
         </RouterLink>
         <Button v-if="isFast()" @click="toggleFast()" class="green">

@@ -1,29 +1,32 @@
 <script setup>
 import Button from '@/components/Button.vue';
+import { useLanguage } from '@/stores/language';
 import { RouterLink } from 'vue-router';
+
+const language = useLanguage();
 </script>
 
 <template>
     <nav>
         <RouterLink to="/game/easy">
-            <Button color="green">EASY</Button>
+            <Button color="green">{{ language.getText("easy") }}</Button>
         </RouterLink>
         <RouterLink to="/game/normal">
-            <Button>NORMAL</Button>
+            <Button>{{ language.getText("normal") }}</Button>
         </RouterLink>
         <RouterLink to="/game/hard">
-            <Button color="red">HARD</Button>
+            <Button color="red">{{ language.getText("hard") }}</Button>
         </RouterLink>
         <RouterLink to="leaderboard">
-            <Button color="orange">🏆 Leaderboard</Button>
+            <Button color="orange">🏆 {{ language.getText("leaderboard") }}</Button>
         </RouterLink>
     </nav>
     <p>
-        Created by <a href="https://huyenngn.github.io/" target="_blank">Huyen Nguyen</a>
+        {{ language.getText("credit") }} <a href="https://huyenngn.github.io/" target="_blank">Huyen Nguyen</a>
     </p>
     <p>
-        <a href="https://www.freeprivacypolicy.com/live/aede0996-f435-4b28-a7fa-8eed29173886" target="_blank">Privacy
-            Policy</a>
+        <a :href="language.getText('privacyLink')" target="_blank">
+            {{ language.getText("privacy") }}</a>
     </p>
 </template>
 
@@ -37,6 +40,7 @@ nav {
 
 p {
     font-size: 1rem;
+    margin-top: 0.25em;
 }
 
 a {

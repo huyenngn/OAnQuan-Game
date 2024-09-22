@@ -1,9 +1,11 @@
 <script setup>
 import Button from '@/components/Button.vue';
 import Medal from '@/components/Medal.vue';
+import { useLanguage } from '@/stores/language';
 import { addEntry, getRank } from '@/supabase';
 import { onMounted, ref } from 'vue';
 
+const language = useLanguage();
 const props = defineProps(["score", "level"]);
 const rank = ref(null);
 const name = ref(null);
@@ -49,9 +51,10 @@ onMounted(async () => {
     <div class="modal-backdrop hidden">
         <div class="modal">
             <div class="modal-content">
-                <h1>Congratulations!</h1>
+                <h1>{{ language.getText("congrats") }}</h1>
                 <div v-if="rank < 100">
-                    <p>You're ranked {{ rank + 1 }} in {{ props.level }} mode.</p>
+                    <p>{{ language.getText("rankPre") }} {{ rank + 1 }} {{ language.getText("rankMain") }} "{{
+                        language.getText(props.level.toLowerCase()) }}" {{ language.getText("rankPost") }}</p>
                     <table>
                         <tbody>
                             <tr>
@@ -60,13 +63,15 @@ onMounted(async () => {
                                 </td>
                                 <td><input type="text" ref="name" value="Unknown" /></td>
                                 <td>{{ props.score }}</td>
-                                <td><span :class="'fi fi-' + country"></span></td>
+                                <td><span :class="'fi fi-' + language.getCountry()"></span></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <p v-else>You are the winner!</p>
-                <Button color="green" @click="async () => await saveScore()">Save</Button>
+                <p v-else>{{ language.getText("noRank") }}</p>
+                <Button color="green" @click="async () => await saveScore()">
+                    {{ language.getText("save") }}
+                </Button>
             </div>
         </div>
     </div>
@@ -101,6 +106,7 @@ onMounted(async () => {
     border-radius: 8px;
     padding: 8px 15px 10px;
     box-shadow: 0 6px 0 #266b91, 0 8px 1px 1px rgba(0, 0, 0, .3), 0 10px 0 5px #12517d, 0 12px 0 5px #1a6b9a, 0 15px 0 5px #0c405e, 0 15px 1px 6px rgba(0, 0, 0, .3);
+    max-width: 600px;
 }
 
 .modal-content {

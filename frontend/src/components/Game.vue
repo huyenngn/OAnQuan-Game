@@ -4,11 +4,16 @@ import Counter from "@/components/Counter.vue";
 import Modal from "@/components/Modal.vue";
 import Quan from "@/components/Quan.vue";
 import UserCitizen from "@/components/UserCitizen.vue";
+import { useLanguage } from "@/stores/language";
 import { useStore } from "@/stores/state";
 import axios from "axios";
 import { onBeforeMount, onBeforeUnmount, ref } from "vue";
 
-const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8080';
+const props = defineProps(["level"]);
+const store = useStore();
+const language = useLanguage();
+
+const BACKEND_URL = language.BACKEND_URL;
 const DELAY = 700;
 const FAST_DELAY = 200;
 const QUAN_FIELDS = [0, 6];
@@ -28,9 +33,6 @@ const modal = ref(null);
 const left = ref(true);
 const right = ref(true);
 
-const props = defineProps(["level"]);
-const store = useStore();
-
 function color_field(pos, color) {
     const field = document.getElementById(`field${pos}`);
     if (!field) return;
@@ -43,16 +45,10 @@ function uncolor_field(pos, color) {
     field.classList.remove(color);
 }
 
-function capitalize(string) {
-    if (!string) return "";
-    return string[0].toUpperCase() + string.slice(1).toLowerCase();
-}
-
 function getNormalizedPos(pos) {
     let m = Math.floor(pos / BOARD_SIZE);
     return pos - m * BOARD_SIZE;
 }
-
 
 function toggleFast() {
     fast.value = !fast.value;
@@ -78,12 +74,12 @@ function undo() {
 
 let hintsLeft = ref(3);
 async function getHint() {
-    if (hintsLeft.value == 0) {
+    if (hintsLeft.value == 0 || winner.value) {
         return;
     }
     const currentState = store.getCurrentState();
     try {
-        const response = await axios.post(BACKEND_URL + "/game/hint/", currentState);
+        const response = await axios.post(BACKEND_URL + "/game/hint", currentState);
         hintsLeft.value -= 1;
         if (response.data.direction == 1) {
             left.value = true;
@@ -268,13 +264,19 @@ onBeforeUnmount(() => {
 
 <template>
     <span v-if="winner == 'Draw'">
-        It's a draw! 🤝
+        {{ language.getText("draw") }}
     </span>
-    <span v-else-if="winner">
-        {{ capitalize(winner) }} wins! 🎉
+    <span v-else-if="winner == 'PLAYER'">
+        {{ language.getText("win") }}
+    </span>
+    <span v-else-if="winner == 'COMPUTER'">
+        {{ language.getText("lose") }}
+    </span>
+    <span v-else-if="turn == 'PLAYER'">
+        {{ language.getText("turn") }}
     </span>
     <span v-else>
-        {{ capitalize(turn) }}'s turn!
+        {{ language.getText("waiting") }}
     </span>
     <span>🤖
         <Counter :count="score['COMPUTER']" id="comp_score" />

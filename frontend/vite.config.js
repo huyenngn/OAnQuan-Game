@@ -7,7 +7,9 @@ import { defineConfig } from "vite";
 export default defineConfig({
     plugins: [vue()],
     define: {
-        VITE_API_URL: JSON.stringify(process.env.VITE_API_URL),
+        VITE_BACKEND_US: JSON.stringify(process.env.VITE_BACKEND_US),
+        VITE_BACKEND_EU: JSON.stringify(process.env.VITE_BACKEND_EU),
+        VITE_BACKEND_ASIA: JSON.stringify(process.env.VITE_BACKEND_ASIA),
         VITE_SUPABASE_URL: JSON.stringify(process.env.VITE_SUPABASE_URL),
         VITE_SUPABASE_KEY: JSON.stringify(process.env.VITE_SUPABASE_KEY),
     },

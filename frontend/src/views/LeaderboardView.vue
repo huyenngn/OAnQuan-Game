@@ -1,9 +1,12 @@
 <script setup>
 import Button from '@/components/Button.vue';
 import Medal from '@/components/Medal.vue';
+import { useLanguage } from '@/stores/language';
 import { fetchEntries, getCountries } from '@/supabase';
 import { computed, onBeforeMount, ref } from 'vue';
 import { RouterLink } from 'vue-router';
+
+const language = useLanguage();
 
 const country = ref("all");
 const level = ref("all");
@@ -46,24 +49,24 @@ onBeforeMount(async () => {
 <template>
     <RouterLink to="/">
         <Button color="orange">
-            BACK
+            {{ language.getText("back") }}
         </Button>
     </RouterLink>
     <div class="filters">
         <select v-model="time" id="time" @change="fetchAndSetEntries">
-            <option value="week">Week</option>
-            <option value="month">Month</option>
-            <option value="ytd">YTD</option>
-            <option value="all">All time</option>
+            <option value="week"> {{ language.getText("week") }}</option>
+            <option value="month"> {{ language.getText("month") }}</option>
+            <option value="ytd"> {{ language.getText("ytd") }}</option>
+            <option value="all"> {{ language.getText("allTime") }}</option>
         </select>
         <select v-model="level" id="level" @change="fetchAndSetEntries">
-            <option value="EASY">Easy</option>
-            <option value="NORMAL">Normal</option>
-            <option value="HARD">Hard</option>
-            <option value="all">All</option>
+            <option value="EASY"> {{ language.getText("easy") }}</option>
+            <option value="NORMAL"> {{ language.getText("normal") }}</option>
+            <option value="HARD"> {{ language.getText("hard") }}</option>
+            <option value="all"> {{ language.getText("all") }}</option>
         </select>
         <select v-model="country" id="country" @change="fetchAndSetEntries">
-            <option value="all">All</option>
+            <option value="all"> {{ language.getText("all") }}</option>
             <option v-for="country in countries" :key="country" :value="country">{{ country.toUpperCase() }}</option>
         </select>
     </div>
@@ -111,13 +114,5 @@ onBeforeMount(async () => {
 
 .filters>* {
     margin: 0 5px;
-}
-
-select {
-    padding: 0.5rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 0.25rem;
-    color: inherit;
 }
 </style>

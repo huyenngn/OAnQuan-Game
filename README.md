@@ -14,7 +14,9 @@ You can host the API server and the frontend on your own machine.
 Create a `.env` file in the frontend directory (optional):
 
 ```sh
-echo "VITE_API_URL=http://{EXTERNAL_IP}:8080" >> frontend/.env
+echo "VITE_BACKEND_US=h{VITE_BACKEND_US}" >> frontend/.env
+echo "VITE_BACKEND_EU={VITE_BACKEND_EU}" >> frontend/.env
+echo "VITE_BACKEND_ASIA={VITE_BACKEND_ASIA}" >> frontend/.env
 echo "VITE_SUPABASE_URL={SUPABASE_URL}" >> frontend/.env
 echo "VITE_SUPABASE_KEY={SUPABASE_KEY}" >> frontend/.env
 ```
