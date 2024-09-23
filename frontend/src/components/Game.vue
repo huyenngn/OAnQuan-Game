@@ -1,6 +1,7 @@
 <script setup>
 import ComputerCitizen from "@/components/ComputerCitizen.vue";
 import Counter from "@/components/Counter.vue";
+import Loading from "@/components/Loading.vue";
 import Modal from "@/components/Modal.vue";
 import Quan from "@/components/Quan.vue";
 import UserCitizen from "@/components/UserCitizen.vue";
@@ -24,7 +25,7 @@ const INITIAL_SCORE = { PLAYER: 0, COMPUTER: 0 };
 const BOARD_SIZE = 12;
 
 const fast = ref(false);
-const board = ref(INITIAL_BOARD);
+const board = ref([]);
 const score = ref(INITIAL_SCORE);
 const turn = ref("PLAYER");
 const winner = ref("");
@@ -163,6 +164,9 @@ async function animateMove(pos, direction) {
 }
 
 async function start_game() {
+    while (language.isBackendReady == false) {
+        await delay(1000);
+    }
     board.value = INITIAL_BOARD;
     score.value = INITIAL_SCORE;
     winner.value = "";
@@ -263,7 +267,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <span v-if="winner == 'Draw'">
+    <span v-if="!board || board.length == 0">
+        {{ language.getText("loading") }}
+    </span>
+    <span v-else-if="winner == 'Draw'">
         {{ language.getText("draw") }}
     </span>
     <span v-else-if="winner == 'PLAYER'">
@@ -281,14 +288,14 @@ onBeforeUnmount(() => {
     <span>🤖
         <Counter :count="score['COMPUTER']" id="comp_score" />
     </span>
-
-    <div class="board">
+    <div v-if="board && board.length != 0" class="board">
         <Quan v-for="id in QUAN_FIELDS" :key="id" :id="id" :count="board[id]" />
         <ComputerCitizen v-for="id in COMPUTER_FIELDS" :key="id" :id="id" :count="board[id]" />
         <UserCitizen v-for="id in PLAYER_FIELDS" :key="id" :id="id" :count="board[id]"
             :selectedCitizen="selectedCitizen" :makeMove="makeMove" :setSelectedCitizen="setSelectedCitizen"
             :left="left" :right="right" />
     </div>
+    <Loading v-else />
     <span>🫵
         <Counter :count="score['PLAYER']" id="you_score" />
     </span>

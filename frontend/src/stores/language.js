@@ -19,25 +19,14 @@ export const useLanguage = defineStore("language", () => {
     ].filter((server) => server.url);
     let BACKEND_URL = ref("http://127.0.0.1:8080");
     let country = "";
+    const isBackendReady = ref(false);
 
     async function warmUpBackend() {
         try {
-            const response = await fetch(BACKEND_URL.value, { method: "GET" });
-
-            if (response.ok) {
-                console.log(
-                    "Warmed up backend successfully:",
-                    BACKEND_URL.value
-                );
-            } else {
-                console.error(
-                    "Failed to warm up backend. Status:",
-                    response.status
-                );
-            }
-        } catch (error) {
-            console.error("Error warming up backend:", error);
-        }
+            await fetch(BACKEND_URL.value, { method: "GET" });
+        } catch (error) {}
+        console.log("Warmed up backend:", BACKEND_URL.value);
+        isBackendReady.value = true;
     }
 
     async function fetchIpData() {
@@ -49,7 +38,7 @@ export const useLanguage = defineStore("language", () => {
                 BACKEND_URL.value = servers.reduce((a, b) =>
                     Math.abs(a.long - long) < Math.abs(b.long - long) ? a : b
                 ).url;
-                await warmUpBackend();
+                warmUpBackend();
             }
             country = data.country_code.toLowerCase();
             if (["en", "de", "vn"].includes(country)) {
@@ -87,6 +76,7 @@ export const useLanguage = defineStore("language", () => {
             lose: "You lose! 😢",
             turn: "Your turn!",
             waiting: "Opponent is playing...",
+            loading: "Loading...",
             week: "Week",
             month: "Month",
             ytd: "Year to Date",
@@ -114,6 +104,7 @@ export const useLanguage = defineStore("language", () => {
             lose: "Thua! 😢",
             turn: "Lượt của bạn!",
             waiting: "Đối thủ đang chơi...",
+            loading: "Đang tải...",
             week: "Tuần",
             month: "Tháng",
             ytd: "Năm nay",
@@ -141,6 +132,7 @@ export const useLanguage = defineStore("language", () => {
             lose: "Leider verloren! 😢",
             turn: "Du bist dran!",
             waiting: "Gegner ist am Zug...",
+            loading: "Laden...",
             week: "Woche",
             month: "Monat",
             ytd: "Dieses Jahr",
@@ -163,5 +155,6 @@ export const useLanguage = defineStore("language", () => {
         BACKEND_URL,
         getText,
         fetchIpData,
+        isBackendReady,
     };
 });
