@@ -20,6 +20,59 @@ export const useLanguage = defineStore("language", () => {
     let BACKEND_URL = ref("http://127.0.0.1:8080");
     let country = "";
 
+    async function warmUpBackend() {
+        try {
+            const response = await fetch(BACKEND_URL.value, { method: "GET" });
+
+            if (response.ok) {
+                console.log(
+                    "Warmed up backend successfully:",
+                    BACKEND_URL.value
+                );
+            } else {
+                console.error(
+                    "Failed to warm up backend. Status:",
+                    response.status
+                );
+            }
+        } catch (error) {
+            console.error("Error warming up backend:", error);
+        }
+    }
+
+    async function fetchIpData() {
+        try {
+            const response = await fetch("https://ipapi.co/json/");
+            const data = await response.json();
+            const long = data.longitude;
+            if (servers.length != 0) {
+                BACKEND_URL.value = servers.reduce((a, b) =>
+                    Math.abs(a.long - long) < Math.abs(b.long - long) ? a : b
+                ).url;
+                await warmUpBackend();
+            }
+            country = data.country_code.toLowerCase();
+            if (["en", "de", "vn"].includes(country)) {
+                language.value = country;
+            }
+        } catch (error) {
+            console.error("Error fetching country code:", error);
+            country = "xx";
+        }
+    }
+
+    function getCountry() {
+        return country;
+    }
+
+    function getText(key) {
+        try {
+            return text[language.value][key];
+        } catch (error) {
+            return text["en"][key];
+        }
+    }
+
     const text = {
         en: {
             credit: "Created by",
@@ -103,39 +156,6 @@ export const useLanguage = defineStore("language", () => {
                 "https://www-freeprivacypolicy-com.translate.goog/live/aede0996-f435-4b28-a7fa-8eed29173886?_x_tr_sl=en&_x_tr_tl=de&_x_tr_hl=de&_x_tr_pto=wapp",
         },
     };
-
-    async function fetchIpData() {
-        try {
-            const response = await fetch("https://ipapi.co/json/");
-            const data = await response.json();
-            const long = data.longitude;
-            if (servers.length != 0) {
-                BACKEND_URL.value = servers.reduce((a, b) =>
-                    Math.abs(a.long - long) < Math.abs(b.long - long) ? a : b
-                ).url;
-                console.log("Backend URL:", BACKEND_URL.value);
-            }
-            country = data.country_code.toLowerCase();
-            if (["en", "de", "vn"].includes(country)) {
-                language.value = country;
-            }
-        } catch (error) {
-            console.error("Error fetching country code:", error);
-            country = "xx";
-        }
-    }
-
-    function getCountry() {
-        return country;
-    }
-
-    function getText(key) {
-        try {
-            return text[language.value][key];
-        } catch (error) {
-            return text["en"][key];
-        }
-    }
 
     return {
         language,
