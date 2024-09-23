@@ -87,6 +87,7 @@ export const useLanguage = defineStore("language", () => {
             rankMain: "in the world for",
             rankPost: "mode!",
             noRank: "You are the winner!",
+            unknown: "Unknown",
             save: "Save",
             privacyLink:
                 "https://www.freeprivacypolicy.com/live/aede0996-f435-4b28-a7fa-8eed29173886",
@@ -115,6 +116,7 @@ export const useLanguage = defineStore("language", () => {
             rankMain: "trên thế giới cho chế độ",
             rankPost: "!",
             noRank: "Bạn là người chiến thắng!",
+            unknown: "Không rõ",
             save: "Lưu",
             privacyLink:
                 "https://www-freeprivacypolicy-com.translate.goog/live/aede0996-f435-4b28-a7fa-8eed29173886?_x_tr_sl=en&_x_tr_tl=vi&_x_tr_hl=de&_x_tr_pto=wapp",
@@ -143,6 +145,7 @@ export const useLanguage = defineStore("language", () => {
             rankMain: "der Welt für den",
             rankPost: "Modus!",
             noRank: "Du bist der Gewinner!",
+            unknown: "Unbekannt",
             save: "Speichern",
             privacyLink:
                 "https://www-freeprivacypolicy-com.translate.goog/live/aede0996-f435-4b28-a7fa-8eed29173886?_x_tr_sl=en&_x_tr_tl=de&_x_tr_hl=de&_x_tr_pto=wapp",

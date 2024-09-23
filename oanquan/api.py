@@ -52,9 +52,10 @@ def start_game(level: Level):
     else:
         last_move = None
 
+    hint = get_hint(game)
     return {
-        "status": "Game started",
         "game": game.model_dump(),
+        "hint": hint,
         "last_move": last_move,
     }
 
@@ -104,7 +105,6 @@ def make_move(game: OAnQuan, move: Move, level: Level):
         # Check if the game has ended after the player's move
         if game.check_end():
             return {
-                "status": "Game over",
                 "game": game.model_dump(),
                 "winner": game.get_winner(),
             }
@@ -114,16 +114,17 @@ def make_move(game: OAnQuan, move: Move, level: Level):
         # Check if the game has ended after the computer's move
         if game.check_end():
             return {
-                "status": "Game over",
                 "game": game.model_dump(),
                 "winner": game.get_winner(),
                 "last_move": last_move,
             }
 
+        hint = get_hint(game)
+
         # Return the updated game state and the next turn
         return {
-            "status": "Move accepted",
             "game": game.model_dump(),
+            "hint": hint,
             "last_move": last_move,
         }
 

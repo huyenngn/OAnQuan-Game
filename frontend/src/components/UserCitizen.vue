@@ -3,7 +3,6 @@ import Counter from "@/components/Counter.vue";
 import Direction from "@/components/Direction.vue";
 
 const props = defineProps(['id', 'count', 'selectedCitizen', 'makeMove', 'setSelectedCitizen', 'left', 'right']);
-
 </script>
 
 

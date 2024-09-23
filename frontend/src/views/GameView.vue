@@ -50,13 +50,13 @@ function undo() {
                 {{ language.getText("back") }}
             </Button>
         </RouterLink>
-        <Button v-if="isFast()" @click="toggleFast()" class="green">
+        <Button v-if="isFast()" @click="toggleFast()" class="green exclude-click-outside">
             <img src="../assets/pause.png" class="green" />
         </Button>
-        <Button v-else @click="toggleFast()">
+        <Button v-else @click="toggleFast()" class="exclude-click-outside">
             <img src="../assets/fast_forward.png" />
         </Button>
-        <Button @click="getHint()">
+        <Button @click="getHint()" class="exclude-click-outside">
             <img src="../assets/hint.svg" />
         </Button>
         <span class="hint-tracker">

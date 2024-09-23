@@ -56,6 +56,8 @@ function toggleFast() {
 }
 
 function setSelectedCitizen(citizen) {
+    left.value = true;
+    right.value = true;
     if (selectedCitizen.value == citizen) {
         selectedCitizen.value = null;
     } else {
@@ -65,34 +67,29 @@ function setSelectedCitizen(citizen) {
 
 function undo() {
     store.undo();
-    const lastState = store.getCurrentState();
-    board.value = lastState.board;
-    score.value = lastState.score;
-    turn.value = lastState.turn ? "COMPUTER" : "PLAYER";
+    const lastGameState = store.getCurrentState().game;
+    board.value = lastGameState.board;
+    score.value = lastGameState.score;
+    turn.value = lastGameState.turn ? "COMPUTER" : "PLAYER";
     winner.value = "";
 
 }
 
 let hintsLeft = ref(3);
-async function getHint() {
+function getHint() {
     if (hintsLeft.value == 0 || winner.value) {
         return;
     }
-    const currentState = store.getCurrentState();
-    try {
-        const response = await axios.post(BACKEND_URL + "/game/hint", currentState);
-        hintsLeft.value -= 1;
-        if (response.data.direction == 1) {
-            left.value = true;
-            right.value = false;
-        } else {
-            left.value = false;
-            right.value = true;
-        }
-        selectedCitizen.value = response.data.pos;
-    } catch (error) {
-        console.error("Error fetching hint:", error);
+    const hint = store.getCurrentState().hint;
+    hintsLeft.value -= 1;
+    if (hint.direction == 1) {
+        left.value = true;
+        right.value = false;
+    } else {
+        left.value = false;
+        right.value = true;
     }
+    selectedCitizen.value = hint.pos;
 }
 
 defineExpose({
@@ -165,16 +162,15 @@ async function animateMove(pos, direction) {
 
 async function start_game() {
     while (language.isBackendReady == false) {
-        await delay(1000);
+        await delay(500);
     }
-    board.value = INITIAL_BOARD;
-    score.value = INITIAL_SCORE;
-    winner.value = "";
     try {
-
         const response = await axios.get(BACKEND_URL + "/game/start/" + props.level);
-        store.addState(response.data.game);
+        store.addState(response.data);
         let next_move = response.data.last_move;
+        board.value = INITIAL_BOARD;
+        score.value = INITIAL_SCORE;
+        winner.value = "";
         if (next_move) {
             let citizens = document.querySelectorAll('.clickable');
             citizens.forEach(citizen => {
@@ -209,10 +205,10 @@ async function makeMove(pos, direction) {
         turn.value = "PLAYER";
         await animateMove(pos, direction);
         const response = await axios.post(BACKEND_URL + "/game/move/" + props.level, {
-            game: store.getCurrentState(),
+            game: store.getCurrentState().game,
             move: { pos, direction },
         });
-        store.addState(response.data.game);
+        store.addState(response.data);
         let next_move = response.data.last_move;
         if (next_move) {
             turn.value = "COMPUTER";
@@ -227,8 +223,8 @@ async function makeMove(pos, direction) {
                 modal.value.showModal();
             }
         }
-        if (!winner.value && JSON.stringify(board.value) != JSON.stringify(store.getCurrentState().board)) {
-            console.error("Board state mismatch:", board.value, store.getCurrentState().board);
+        if (!winner.value && JSON.stringify(board.value) != JSON.stringify(store.getCurrentState().game.board)) {
+            console.error("Board state mismatch:", board.value, store.getCurrentState().game.board);
         }
         else {
             citizens.forEach(citizen => {
@@ -247,8 +243,7 @@ function getGameScore() {
 }
 
 function handleClickOutside(event) {
-    left.value = true;
-    right.value = true;
+    if (event.target.closest('.exclude-click-outside')) return;
     if (!event.target.closest('.citizen')) {
         selectedCitizen.value = null;
     }
@@ -256,7 +251,6 @@ function handleClickOutside(event) {
 
 onBeforeMount(async () => {
     document.addEventListener('click', handleClickOutside);
-    console.log(store.getStateHistory());
     await start_game();
 });
 

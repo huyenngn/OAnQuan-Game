@@ -9,10 +9,13 @@ export const useStore = defineStore("store", () => {
     }
 
     function popState() {
-        let popped = stateHistory.value.pop();
+        stateHistory.value.pop();
     }
 
     function getCurrentState() {
+        if (stateHistory.value.length == 0) {
+            return {};
+        }
         let currentState = stateHistory.value[stateHistory.value.length - 1];
         return JSON.parse(JSON.stringify(currentState));
     }

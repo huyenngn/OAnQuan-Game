@@ -61,7 +61,7 @@ onMounted(async () => {
                                 <td>
                                     <Medal :rank="rank + 1" />
                                 </td>
-                                <td><input type="text" ref="name" value="Unknown" /></td>
+                                <td><input type="text" ref="name" :value="language.getText('unknown')" /></td>
                                 <td>{{ props.score }}</td>
                                 <td><span :class="'fi fi-' + language.getCountry()"></span></td>
                             </tr>

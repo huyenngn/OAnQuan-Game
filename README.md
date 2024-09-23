@@ -11,12 +11,17 @@ To play the game, check it out at [oanquan.fun](https://oanquan.fun).
 
 You can host the API server and the frontend on your own machine.
 
-Create a `.env` file in the frontend directory (optional):
+Add the backend URLs to an `.env` file in the `frontend` directory (optional):
 
 ```sh
-echo "VITE_BACKEND_US=h{VITE_BACKEND_US}" >> frontend/.env
+echo "VITE_BACKEND_US={VITE_BACKEND_US}" >> frontend/.env
 echo "VITE_BACKEND_EU={VITE_BACKEND_EU}" >> frontend/.env
 echo "VITE_BACKEND_ASIA={VITE_BACKEND_ASIA}" >> frontend/.env
+```
+
+Add your Supabase URL and key to the `.env` file in the `frontend` directory:
+
+```sh
 echo "VITE_SUPABASE_URL={SUPABASE_URL}" >> frontend/.env
 echo "VITE_SUPABASE_KEY={SUPABASE_KEY}" >> frontend/.env
 ```
