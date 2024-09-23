@@ -1,4 +1,4 @@
-name: Build and Push to Docker Hub
+name: Build and Deploy
 
 on:
   push:
@@ -6,12 +6,12 @@ on:
       - main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Build and push backend Docker image
         run: |
@@ -30,3 +30,34 @@ jobs:
             -t huyenngn/frontend -f frontend/Dockerfile ./frontend
           echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u huyenngn --password-stdin
           docker push huyenngn/frontend
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy services to Render
+        run: |
+          deploy_service() {
+            local service_id=$1
+            echo "Deploying service with ID: $service_id"
+            response=$(curl -s -o /dev/null -w "%{http_code}" -X POST "https://api.render.com/v1/services/$service_id/deploys" \
+              -H "Authorization: Bearer $RENDER_API_KEY" \
+              -H "accept: application/json" \
+              -H "content-type: application/json")
+            if [ "$response" -ne 201 ]; then
+              echo "Deployment failed for service $service_id with status code $response"
+              exit 1
+            else
+              echo "Deployment triggered successfully for service $service_id"
+            fi
+          }
+
+          deploy_service "srv-crolg89u0jms73cb6gt0" # Frontend
+          deploy_service "srv-crolj223esus73c33meg" # Backend US
+          deploy_service "srv-crolh0hu0jms73cb6r1g" # Backend EU
+          deploy_service "srv-crolhf56l47c73fpdck0" # Backend Asia
