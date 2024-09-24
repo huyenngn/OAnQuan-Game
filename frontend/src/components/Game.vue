@@ -100,10 +100,20 @@ defineExpose({
     hintsLeft,
 });
 
+async function checkEnd() {
+    if (QUAN_FIELDS.every(pos => board.value[pos] == 0)) {
+        score.value["PLAYER"] += board.value.slice(7, 12).reduce((a, b) => a + b, 0);
+        score.value["COMPUTER"] += board.value.slice(1, 6).reduce((a, b) => a + b, 0);
+        board.value = Array(12).fill(0);
+        return true;
+    }
+    return false;
+}
+
 async function updateAllowedMoves() {
     let fields = turn.value == "COMPUTER" ? COMPUTER_FIELDS : PLAYER_FIELDS;
     let allowed_moves = fields.filter(pos => board.value[pos] > 0);
-    let isEnd = QUAN_FIELDS.every(pos => board.value[pos] == 0);
+    let isEnd = await checkEnd();
     if (allowed_moves.length > 0 || isEnd) {
         return
     }
@@ -214,7 +224,7 @@ async function makeMove(pos, direction) {
             turn.value = "COMPUTER";
             await animateMove(next_move.pos, next_move.direction);
         }
-        if (response.data.winner) {
+        if (await checkEnd()) {
             winner.value = response.data.winner;
             if (winner.value == "PLAYER") {
                 while (modal.value == null) {
@@ -223,7 +233,7 @@ async function makeMove(pos, direction) {
                 modal.value.showModal();
             }
         }
-        if (!winner.value && JSON.stringify(board.value) != JSON.stringify(store.getCurrentState().game.board)) {
+        if (JSON.stringify(board.value) != JSON.stringify(store.getCurrentState().game.board)) {
             console.error("Board state mismatch:", board.value, store.getCurrentState().game.board);
         }
         else {

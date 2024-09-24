@@ -1,5 +1,6 @@
 <script setup>
 import Button from '@/components/Button.vue';
+import Loading from '@/components/Loading.vue';
 import Medal from '@/components/Medal.vue';
 import { useLanguage } from '@/stores/language';
 import { fetchEntries, getCountries } from '@/supabase';
@@ -13,6 +14,7 @@ const level = ref("all");
 const time = ref("all");
 const countries = ref([]);
 const entries = ref([]);
+const loading = ref(false);
 
 const filter = computed(() => {
     let timestamp = "all";
@@ -37,7 +39,9 @@ const filter = computed(() => {
 });
 
 const fetchAndSetEntries = async () => {
+    loading.value = true;
     entries.value = await fetchEntries(filter.value);
+    loading.value = false;
 };
 
 onBeforeMount(async () => {
@@ -70,7 +74,7 @@ onBeforeMount(async () => {
             <option v-for="country in countries" :key="country" :value="country">{{ country.toUpperCase() }}</option>
         </select>
     </div>
-    <div class="board">
+    <div class="board" v-if="!loading">
         <div class="row" v-for="(entry, index) in entries" :key="entry.id">
             <div class="column">
                 <Medal :rank="index + 1" />
@@ -80,6 +84,7 @@ onBeforeMount(async () => {
             <div class="column"><span :class="'fi fi-' + entry.country"></span></div class="column">
         </div>
     </div>
+    <Loading v-else />
 </template>
 
 <style scoped>

@@ -34,7 +34,9 @@ export const useLanguage = defineStore("language", () => {
             const response = await fetch("https://ipapi.co/json/");
             const data = await response.json();
             const long = data.longitude;
-            if (servers.length != 0) {
+            if (servers.length == 0) {
+                isBackendReady.value = true;
+            } else {
                 BACKEND_URL.value = servers.reduce((a, b) =>
                     Math.abs(a.long - long) < Math.abs(b.long - long) ? a : b
                 ).url;
@@ -84,7 +86,7 @@ export const useLanguage = defineStore("language", () => {
             allTime: "All Time",
             congrats: "Congratulations!",
             rankPre: "You are ranked",
-            rankMain: "in the world for",
+            rankMain: "for",
             rankPost: "mode!",
             noRank: "You are the winner!",
             unknown: "Unknown",
@@ -113,7 +115,7 @@ export const useLanguage = defineStore("language", () => {
             allTime: "Tất cả thời gian",
             congrats: "Chúc mừng!",
             rankPre: "Bạn đứng thứ",
-            rankMain: "trên thế giới cho chế độ",
+            rankMain: "cho chế độ",
             rankPost: "!",
             noRank: "Bạn là người chiến thắng!",
             unknown: "Không rõ",
@@ -142,7 +144,7 @@ export const useLanguage = defineStore("language", () => {
             allTime: "Gesamt",
             congrats: "Herzlichen Glückwunsch!",
             rankPre: "Du bist auf Platz",
-            rankMain: "der Welt für den",
+            rankMain: "im",
             rankPost: "Modus!",
             noRank: "Du bist der Gewinner!",
             unknown: "Unbekannt",

@@ -10,6 +10,12 @@ def evaluate_position(game: OAnQuan, player: Player) -> float:
     return game.score[player.name] - game.score[Player(not player.value).name]
 
 
+def get_move_eval(game: OAnQuan, player: Player) -> float:
+    """Get the evaluation of the current move."""
+    eval = evaluate_position(game, player)
+    return 100 * eval if game.check_end() else 2 * eval
+
+
 def minimax(
     game: OAnQuan,
     depth: int = 5,
@@ -36,13 +42,8 @@ def minimax(
             potential_eval, _ = minimax(
                 game_copy, depth - 1, False, alpha, beta, player
             )
-            move_eval, _ = minimax(game_copy, 0, False, alpha, beta, player)
-            if game_copy.check_end() and (
-                game_copy.get_winner() == player.name
-            ):
-                total_eval = 70 + move_eval + potential_eval
-            else:
-                total_eval = 2 * move_eval + potential_eval
+            move_eval = get_move_eval(game_copy, player)
+            total_eval = move_eval + potential_eval
             move_map[total_eval] = move
             max_eval = max(max_eval, total_eval)
             alpha = max(alpha, total_eval)
@@ -57,13 +58,8 @@ def minimax(
             potential_eval, _ = minimax(
                 game_copy, depth - 1, True, alpha, beta, player
             )
-            move_eval, _ = minimax(game_copy, 0, True, alpha, beta, player)
-            if game_copy.check_end() and (
-                game_copy.get_winner() != player.name
-            ):
-                total_eval = -70 + move_eval + potential_eval
-            else:
-                total_eval = 2 * move_eval + potential_eval
+            move_eval = get_move_eval(game_copy, player)
+            total_eval = move_eval + potential_eval
             move_map[total_eval] = move
             min_eval = min(min_eval, total_eval)
             beta = min(beta, total_eval)
