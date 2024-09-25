@@ -2,12 +2,12 @@
 import Counter from "@/components/Counter.vue";
 import Direction from "@/components/Direction.vue";
 
-const props = defineProps(['id', 'count', 'selectedCitizen', 'makeMove', 'setSelectedCitizen', 'left', 'right']);
+const props = defineProps(['id', 'count', 'selectedCitizen', 'makeMove', 'setSelectedCitizen', 'left', 'right', 'isTurn']);
 </script>
 
 
 <template>
-    <div class="citizen clickable" :id="'field' + id" @click="setSelectedCitizen(id)">
+    <div :class="isTurn ? 'citizen clickable' : 'citizen'" :id="'field' + id" @click="setSelectedCitizen(id)">
         <Counter :count="count" :id="'counter' + id" />
         <Direction v-if="selectedCitizen == id && count != 0" :left="left" :right="right" @left="makeMove(id, 1)"
             @right="makeMove(id, -1)" />

@@ -131,6 +131,7 @@ function delay(time = fast.value ? FAST_DELAY : DELAY) {
     return new Promise((resolve) => setTimeout(resolve, time));
 }
 
+const isTurn = ref(false);
 async function animateMove(pos, direction) {
     color_field(pos, turn.value == "COMPUTER" ? "green" : "blue");
     let toDistribute = board.value[pos];
@@ -182,17 +183,14 @@ async function start_game() {
         score.value = INITIAL_SCORE;
         winner.value = "";
         if (next_move) {
-            let citizens = document.querySelectorAll('.clickable');
-            citizens.forEach(citizen => {
-                citizen.classList.remove('clickable');
-            });
+
             turn.value = "COMPUTER";
+            isTurn.value = false;
             await animateMove(next_move.pos, next_move.direction);
-            citizens.forEach(citizen => {
-                citizen.classList.add('clickable');
-            });
+            isTurn.value = true;
         }
         else {
+            isTurn.value = true;
             turn.value = "PLAYER"
         }
 
@@ -208,10 +206,7 @@ async function makeMove(pos, direction) {
         citizen.classList.remove('blue');
     });
     try {
-        let citizens = document.querySelectorAll('.clickable')
-        citizens.forEach(citizen => {
-            citizen.classList.remove('clickable');
-        });
+        isTurn.value = false;
         turn.value = "PLAYER";
         await animateMove(pos, direction);
         const response = await axios.post(BACKEND_URL + "/game/move/" + props.level, {
@@ -225,6 +220,7 @@ async function makeMove(pos, direction) {
             await animateMove(next_move.pos, next_move.direction);
         }
         if (await checkEnd()) {
+            isTurn.value = false;
             winner.value = response.data.winner;
             if (winner.value == "PLAYER") {
                 while (modal.value == null) {
@@ -235,11 +231,8 @@ async function makeMove(pos, direction) {
         }
         if (JSON.stringify(board.value) != JSON.stringify(store.getCurrentState().game.board)) {
             console.error("Board state mismatch:", board.value, store.getCurrentState().game.board);
-        }
-        else {
-            citizens.forEach(citizen => {
-                citizen.classList.add('clickable');
-            });
+        } else {
+            isTurn.value = true;
         }
     } catch (error) {
         console.error("Error making move:", error);
@@ -297,7 +290,7 @@ onBeforeUnmount(() => {
         <ComputerCitizen v-for="id in COMPUTER_FIELDS" :key="id" :id="id" :count="board[id]" />
         <UserCitizen v-for="id in PLAYER_FIELDS" :key="id" :id="id" :count="board[id]"
             :selectedCitizen="selectedCitizen" :makeMove="makeMove" :setSelectedCitizen="setSelectedCitizen"
-            :left="left" :right="right" />
+            :left="left" :right="right" :isTurn="isTurn" />
     </div>
     <Loading v-else />
     <span>🫵
