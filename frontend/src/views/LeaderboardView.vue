@@ -38,6 +38,16 @@ const filter = computed(() => {
     return out;
 });
 
+function getLevelEmoji(level) {
+    if (level == "EASY") {
+        return "🍃";
+    } else if (level == "NORMAL") {
+        return "🌊";
+    } else if (level == "HARD") {
+        return "🔥";
+    }
+}
+
 const fetchAndSetEntries = async () => {
     loading.value = true;
     entries.value = await fetchEntries(filter.value);
@@ -64,10 +74,10 @@ onBeforeMount(async () => {
             <option value="all"> {{ language.getText("allTime") }}</option>
         </select>
         <select v-model="level" id="level" @change="fetchAndSetEntries">
-            <option value="EASY"> {{ language.getText("easy") }}</option>
-            <option value="NORMAL"> {{ language.getText("normal") }}</option>
-            <option value="HARD"> {{ language.getText("hard") }}</option>
-            <option value="all"> {{ language.getText("all") }}</option>
+            <option value="all">{{ language.getText("all") }}</option>
+            <option value="EASY">🍃 {{ language.getText("easy") }}</option>
+            <option value="NORMAL">🌊 {{ language.getText("normal") }}</option>
+            <option value="HARD">🔥 {{ language.getText("hard") }}</option>
         </select>
         <select v-model="country" id="country" @change="fetchAndSetEntries">
             <option value="all"> {{ language.getText("all") }}</option>
@@ -75,49 +85,58 @@ onBeforeMount(async () => {
         </select>
     </div>
     <div class="board" v-if="!loading">
-        <div class="row" v-for="(entry, index) in entries" :key="entry.id">
+        <div class="row card" v-for="(entry, index) in entries" :key="entry.id">
             <div class="column">
                 <Medal :rank="index + 1" />
-            </div class="column">
-            <div class="column">{{ entry.name }}</div class="column">
-            <div class="column">{{ entry.score }}</div class="column">
-            <div class="column"><span :class="'fi fi-' + entry.country"></span></div class="column">
+            </div>
+            <p>{{ entry.name }}</p>
+            <p>{{ getLevelEmoji(entry.level) + entry.score }}</p>
+            <div class="column"><span :class="'fi fi-' + entry.country"></span></div>
         </div>
     </div>
     <Loading v-else />
 </template>
 
+<style>
+.row {
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr 1fr;
+    gap: 0.5em;
+    padding: 2px 0.75em;
+}
+
+.column {
+    display: flex;
+    justify-content: center;
+}
+
+.column:first-child {
+    justify-content: flex-start;
+}
+
+.column:last-child {
+    justify-content: flex-end;
+}
+</style>
+
 <style scoped>
 .board {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
-    min-width: 45%;
+    max-width: 600px;
+    gap: 0.4em;
 }
 
-.row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    margin: 5px;
-    text-shadow: 2px 2px 1px #0066a2, -2px 2px 1px #0066a2, 2px -2px 1px #0066a2, -2px -2px 1px #0066a2, 0px 2px 1px #0066a2, 0px -2px 1px #0066a2, 0px 4px 1px #004a87, 2px 4px 1px #004a87, -2px 4px 1px #004a87;
-    background: repeating-linear-gradient(45deg, #3ebbf7, #3ebbf7 5px, #45b1f4 5px, #45b1f4 10px);
-    border-bottom: 3px solid rgba(16, 91, 146, 0.5);
-    border-top: 3px solid rgba(255, 255, 255, .3);
-    color: #fff !important;
-    border-radius: 8px;
-    padding: 10px;
+p {
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
-.row:nth-child(even) {
-    background: repeating-linear-gradient(45deg, #54d440, #54d440 5px, #52cc3f 5px, #52cc3f 10px);
-    border-bottom: 3px solid rgba(40, 117, 29, 0.5);
-    text-shadow: 2px 2px 1px #348628, -2px 2px 1px #348628, 2px -2px 1px #348628, -2px -2px 1px #348628, 0px 2px 1px #348628, 0px -2px 1px #348628, 0px 4px 1px #1d4c16, 2px 4px 1px #1d4c16, -2px 4px 1px #1d4c16;
-}
-
-.column {
-    text-align: center;
-}
-
-.filters>* {
-    margin: 0 5px;
+.filters {
+    display: flex;
+    margin: 0.75em;
+    gap: 5px;
 }
 </style>

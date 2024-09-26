@@ -22,7 +22,7 @@ const props = defineProps(["color"]);
     letter-spacing: .1em;
     text-shadow: 2px 2px 1px #0066a2, -2px 2px 1px #0066a2, 2px -2px 1px #0066a2, -2px -2px 1px #0066a2, 0px 2px 1px #0066a2, 0px -2px 1px #0066a2, 0px 4px 1px #004a87, 2px 4px 1px #004a87, -2px 4px 1px #004a87;
     border: none;
-    margin: 15px 15px;
+    margin: 0 15px 15px;
     background: repeating-linear-gradient(45deg, #3ebbf7, #3ebbf7 5px, #45b1f4 5px, #45b1f4 10px);
     border-bottom: 3px solid rgba(16, 91, 146, 0.5);
     border-top: 3px solid rgba(255, 255, 255, .3);

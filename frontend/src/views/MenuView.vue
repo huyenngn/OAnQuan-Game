@@ -9,16 +9,16 @@ const language = useLanguage();
 <template>
     <nav>
         <RouterLink to="/game/easy">
-            <Button color="green">{{ language.getText("easy") }}</Button>
+            <Button color="green">🍃{{ language.getText("easy") }}</Button>
         </RouterLink>
         <RouterLink to="/game/normal">
-            <Button>{{ language.getText("normal") }}</Button>
+            <Button>🌊{{ language.getText("normal") }}</Button>
         </RouterLink>
         <RouterLink to="/game/hard">
-            <Button color="red">{{ language.getText("hard") }}</Button>
+            <Button color="red">🔥{{ language.getText("hard") }}</Button>
         </RouterLink>
         <RouterLink to="leaderboard">
-            <Button color="orange">🏆 {{ language.getText("leaderboard") }}</Button>
+            <Button color="orange">🏆{{ language.getText("leaderboard") }}</Button>
         </RouterLink>
     </nav>
     <p>
@@ -34,16 +34,13 @@ const language = useLanguage();
 nav {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    margin: 1em;
+    gap: 0.75em;
+    margin: 0.75em;
 }
 
 p {
     font-size: 1rem;
+    font-weight: normal;
     margin-top: 0.25em;
-}
-
-a {
-    font-weight: bold;
 }
 </style>

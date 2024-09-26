@@ -131,9 +131,11 @@ function delay(time = fast.value ? FAST_DELAY : DELAY) {
     return new Promise((resolve) => setTimeout(resolve, time));
 }
 
+const pickedUp = ref([null, null]);
+
 const isTurn = ref(false);
 async function animateMove(pos, direction) {
-    color_field(pos, turn.value == "COMPUTER" ? "green" : "blue");
+    pickedUp.value = [pos, (turn.value == "PLAYER" ? "blue" : "green")];
     let toDistribute = board.value[pos];
     board.value[pos] = 0;
     let index = pos;
@@ -145,7 +147,7 @@ async function animateMove(pos, direction) {
         await delay();
     }
 
-    uncolor_field(pos, turn.value == "COMPUTER" ? "green" : "blue");
+    pickedUp.value = [null, null];
     index = getNormalizedPos(index + direction);
     if (board.value[index] == 0) {
         let next_index = getNormalizedPos(index + direction);
@@ -200,11 +202,7 @@ async function start_game() {
 }
 
 async function makeMove(pos, direction) {
-    let colored = document.querySelectorAll('.citizen.green, .citizen.blue');
-    colored.forEach(citizen => {
-        citizen.classList.remove('green');
-        citizen.classList.remove('blue');
-    });
+    pickedUp.value = [null, null];
     try {
         isTurn.value = false;
         turn.value = "PLAYER";
@@ -240,7 +238,7 @@ async function makeMove(pos, direction) {
 }
 
 function getGameScore() {
-    const levelBonus = { "easy": 1, "medium": 2, "hard": 3 };
+    const levelBonus = { "easy": 1, "normal": 2, "hard": 3 };
     let result = (score.value["PLAYER"] - score.value["COMPUTER"] + (levelBonus[props.level] * 70) + (hintsLeft.value * 10)) * 100;
     return Math.round(result);
 }
@@ -287,10 +285,10 @@ onBeforeUnmount(() => {
     </span>
     <div v-if="board && board.length != 0" class="board">
         <Quan v-for="id in QUAN_FIELDS" :key="id" :id="id" :count="board[id]" />
-        <ComputerCitizen v-for="id in COMPUTER_FIELDS" :key="id" :id="id" :count="board[id]" />
+        <ComputerCitizen v-for="id in COMPUTER_FIELDS" :key="id" :id="id" :count="board[id]" :pickedUp="pickedUp" />
         <UserCitizen v-for="id in PLAYER_FIELDS" :key="id" :id="id" :count="board[id]"
             :selectedCitizen="selectedCitizen" :makeMove="makeMove" :setSelectedCitizen="setSelectedCitizen"
-            :left="left" :right="right" :isTurn="isTurn" />
+            :left="left" :right="right" :isTurn="isTurn" :pickedUp="pickedUp" />
     </div>
     <Loading v-else />
     <span>🫵
@@ -300,6 +298,10 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.board>* {
+    font-size: 4cqw;
+}
+
 span {
     font-weight: 900;
     display: flex;
@@ -308,16 +310,6 @@ span {
 
 div {
     width: 100%;
-}
-
-.green {
-    background-color: #8ae994;
-    mix-blend-mode: multiply;
-}
-
-.blue {
-    background-color: #aadefd;
-    mix-blend-mode: multiply;
 }
 
 .red {

@@ -2,12 +2,13 @@
 import Counter from "@/components/Counter.vue";
 import Direction from "@/components/Direction.vue";
 
-const props = defineProps(['id', 'count', 'selectedCitizen', 'makeMove', 'setSelectedCitizen', 'left', 'right', 'isTurn']);
+const props = defineProps(['id', 'count', 'selectedCitizen', 'makeMove', 'setSelectedCitizen', 'left', 'right', 'isTurn', 'pickedUp']);
 </script>
 
 
 <template>
-    <div :class="isTurn ? 'citizen clickable' : 'citizen'" :id="'field' + id" @click="setSelectedCitizen(id)">
+    <div :class="'citizen' + (isTurn ? ' clickable' : '') + (pickedUp[0] == id ? (' ' + pickedUp[1]) : '')"
+        :id="'field' + id" @click="setSelectedCitizen(id)">
         <Counter :count="count" :id="'counter' + id" />
         <Direction v-if="selectedCitizen == id && count != 0" :left="left" :right="right" @left="makeMove(id, 1)"
             @right="makeMove(id, -1)" />
@@ -24,6 +25,16 @@ const props = defineProps(['id', 'count', 'selectedCitizen', 'makeMove', 'setSel
     pointer-events: none;
     position: relative;
     z-index: 10;
+}
+
+.blue {
+    background-color: #aadefd;
+    mix-blend-mode: multiply;
+}
+
+.green {
+    background-color: #8ae994;
+    mix-blend-mode: multiply;
 }
 
 .clickable {
