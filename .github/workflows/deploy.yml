@@ -24,9 +24,9 @@ jobs:
           docker build \
             --build-arg VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }} \
             --build-arg VITE_SUPABASE_KEY=${{ secrets.VITE_SUPABASE_KEY }} \
-            --build-arg VITE_BACKEND_US=${{ secrets.VITE_BACKEND_US }} \
+            --build-arg VITE_BACKEND_NA=${{ secrets.VITE_BACKEND_NA }} \
             --build-arg VITE_BACKEND_EU=${{ secrets.VITE_BACKEND_EU }} \
-            --build-arg VITE_BACKEND_ASIA=${{ secrets.VITE_BACKEND_ASIA }} \
+            --build-arg VITE_BACKEND_AS=${{ secrets.VITE_BACKEND_AS }} \
             -t huyenngn/frontend -f frontend/Dockerfile ./frontend
           echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u huyenngn --password-stdin
           docker push huyenngn/frontend
@@ -35,7 +35,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     env:
-      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RENDER_EU_API_KEY: ${{ secrets.RENDER_EU_API_KEY }}
+      RENDER_NA_API_KEY: ${{ secrets.RENDER_NA_API_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -44,9 +45,10 @@ jobs:
         run: |
           deploy_service() {
             local service_id=$1
+            local api_key=$2
             echo "Deploying service with ID: $service_id"
             response=$(curl -s -o /dev/null -w "%{http_code}" -X POST "https://api.render.com/v1/services/$service_id/deploys" \
-              -H "Authorization: Bearer $RENDER_API_KEY" \
+              -H "Authorization: Bearer $api_key" \
               -H "accept: application/json" \
               -H "content-type: application/json")
             if [ "$response" -ne 201 ]; then
@@ -57,7 +59,7 @@ jobs:
             fi
           }
 
-          deploy_service "srv-crolg89u0jms73cb6gt0" # Frontend
-          deploy_service "srv-crolj223esus73c33meg" # Backend US
-          deploy_service "srv-crolh0hu0jms73cb6r1g" # Backend EU
-          deploy_service "srv-crolhf56l47c73fpdck0" # Backend Asia
+          deploy_service "srv-crolg89u0jms73cb6gt0" $RENDER_EU_API_KEY  # Frontend
+          deploy_service "srv-crr4erl6l47c73ccrir0" $RENDER_NA_API_KEY  # Backend NA
+          deploy_service "srv-crr4kc2j1k6c73e9bn00" $RENDER_EU_API_KEY  # Backend EU
+          deploy_service "srv-crr4fpo8fa8c73ekin10" $RENDER_NA_API_KEY  # Backend AS

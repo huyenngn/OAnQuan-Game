@@ -1,24 +1,27 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
+const GLOBAL_SERVERS = [
+    {
+        long: -120,
+        url: import.meta.env.VITE_BACKEND_NA,
+    },
+    {
+        long: 5,
+        url: import.meta.env.VITE_BACKEND_EU,
+    },
+    {
+        long: 120,
+        url: import.meta.env.VITE_BACKEND_AS,
+    },
+].filter((server) => server.url);
+
+const LANGUAGES = ["en", "de", "vn"];
+
 export const useLanguage = defineStore("language", () => {
     const language = ref("en");
-    let servers = [
-        {
-            long: -120,
-            url: import.meta.env.VITE_BACKEND_US,
-        },
-        {
-            long: 5,
-            url: import.meta.env.VITE_BACKEND_EU,
-        },
-        {
-            long: 120,
-            url: import.meta.env.VITE_BACKEND_ASIA,
-        },
-    ].filter((server) => server.url);
-    let BACKEND_URL = ref("http://127.0.0.1:8080");
-    let country = "";
+    const BACKEND_URL = ref("http://127.0.0.1:8080");
+    const country = ref("xx");
     const isBackendReady = ref(false);
 
     async function warmUpBackend() {
@@ -33,27 +36,25 @@ export const useLanguage = defineStore("language", () => {
         try {
             const response = await fetch("https://ipapi.co/json/");
             const data = await response.json();
-            const long = data.longitude;
-            if (servers.length == 0) {
+
+            if (GLOBAL_SERVERS.length == 0) {
                 isBackendReady.value = true;
             } else {
-                BACKEND_URL.value = servers.reduce((a, b) =>
-                    Math.abs(a.long - long) < Math.abs(b.long - long) ? a : b
+                BACKEND_URL.value = GLOBAL_SERVERS.reduce((a, b) =>
+                    Math.abs(a.long - data.longitude) <
+                    Math.abs(b.long - data.longitude)
+                        ? a
+                        : b
                 ).url;
                 warmUpBackend();
             }
-            country = data.country_code.toLowerCase();
-            if (["en", "de", "vn"].includes(country)) {
-                language.value = country;
+            country.value = data.country_code.toLowerCase();
+            if (LANGUAGES.includes(country.value)) {
+                language.value = country.value;
             }
         } catch (error) {
             console.error("Error fetching country code:", error);
-            country = "xx";
         }
-    }
-
-    function getCountry() {
-        return country;
     }
 
     function getText(key) {
@@ -64,14 +65,25 @@ export const useLanguage = defineStore("language", () => {
         }
     }
 
+    function getTutorial() {
+        try {
+            return tutorial[language.value];
+        } catch (error) {
+            return tutorial["en"];
+        }
+    }
+
     const text = {
         en: {
             credit: "Created by",
             privacy: "Privacy Policy",
+            newGame: "New Game",
             easy: "Easy",
             normal: "Normal",
             hard: "Hard",
             leaderboard: "Leaderboard",
+            tutorial: "Tutorial",
+            campaign: "Campaign",
             back: "Back",
             draw: "It's a draw! 🤝",
             win: "You win! 🎉",
@@ -97,10 +109,13 @@ export const useLanguage = defineStore("language", () => {
         vn: {
             credit: "Tạo bởi",
             privacy: "Chính sách Bảo mật",
+            newGame: "Trò chơi mới",
             easy: "Dễ",
             normal: "Trung bình",
             hard: "Khó",
             leaderboard: "Bảng xếp hạng",
+            tutorial: "Hướng dẫn",
+            campaign: "Chiến dịch",
             back: "Quay lại",
             draw: "Hòa! 🤝",
             win: "Thắng! 🎉",
@@ -126,10 +141,13 @@ export const useLanguage = defineStore("language", () => {
         de: {
             credit: "Erstellt von",
             privacy: "Datenschutzerklärung",
+            newGame: "Neues Spiel",
             easy: "Leicht",
             normal: "Normal",
             hard: "Schwer",
             leaderboard: "Rangliste",
+            tutorial: "Anleitung",
+            campaign: "Kampagne",
             back: "Zurück",
             draw: "Unentschieden! 🤝",
             win: "Du hast gewonnen! 🎉",
@@ -154,12 +172,46 @@ export const useLanguage = defineStore("language", () => {
         },
     };
 
+    const tutorial = {
+        en: [
+            {
+                title: "title1",
+                text: "text1",
+            },
+            {
+                title: "title2",
+                text: "text2",
+            },
+        ],
+        vn: [
+            {
+                title: "Tiêu đề 1",
+                text: "Nội dung 1",
+            },
+            {
+                title: "Tiêu đề 2",
+                text: "Nội dung 2",
+            },
+        ],
+        de: [
+            {
+                title: "Titel 1",
+                text: "Text 1",
+            },
+            {
+                title: "Titel 2",
+                text: "Text 2",
+            },
+        ],
+    };
+
     return {
         language,
-        getCountry,
         BACKEND_URL,
+        country,
         getText,
         fetchIpData,
         isBackendReady,
+        getTutorial,
     };
 });

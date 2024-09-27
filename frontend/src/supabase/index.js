@@ -11,11 +11,9 @@ async function fetchEntries(filters = {}) {
     if (filters.level) {
         query = query.eq("level", filters.level.toUpperCase());
     }
-
     if (filters.country) {
         query = query.eq("country", filters.country);
     }
-
     if (filters.created_at) {
         query = query.gte("created_at", new Date(filters.time).toISOString());
     }

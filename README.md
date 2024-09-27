@@ -14,9 +14,9 @@ You can host the API server and the frontend on your own machine.
 Add the backend URLs to an `.env` file in the `frontend` directory (optional):
 
 ```sh
-echo "VITE_BACKEND_US={VITE_BACKEND_US}" >> frontend/.env
+echo "VITE_BACKEND_NA={VITE_BACKEND_NA}" >> frontend/.env
 echo "VITE_BACKEND_EU={VITE_BACKEND_EU}" >> frontend/.env
-echo "VITE_BACKEND_ASIA={VITE_BACKEND_ASIA}" >> frontend/.env
+echo "VITE_BACKEND_AS={VITE_BACKEND_AS}" >> frontend/.env
 ```
 
 Add your Supabase URL and key to the `.env` file in the `frontend` directory:
@@ -46,7 +46,7 @@ python -m venv .venv
 
 source .venv/bin/activate
 
-pip install -e '.[docs,test]'
+pip install -e .
 ```
 
 To develop the frontend, use the following command:

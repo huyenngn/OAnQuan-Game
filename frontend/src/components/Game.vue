@@ -1,58 +1,72 @@
 <script setup>
-import ComputerCitizen from "@/components/ComputerCitizen.vue";
-import Counter from "@/components/Counter.vue";
-import Loading from "@/components/Loading.vue";
-import Modal from "@/components/Modal.vue";
-import Quan from "@/components/Quan.vue";
-import UserCitizen from "@/components/UserCitizen.vue";
+import Button from '@/components/Button.vue';
+import Citizen from '@/components/Citizen.vue';
+import Counter from '@/components/Counter.vue';
+import Loading from '@/components/Loading.vue';
+import Quan from '@/components/Quan.vue';
 import { useLanguage } from "@/stores/language";
 import { useStore } from "@/stores/state";
-import axios from "axios";
+import { delay } from "@/utils";
 import { onBeforeMount, onBeforeUnmount, ref } from "vue";
 
-const props = defineProps(["level"]);
-const store = useStore();
-const language = useLanguage();
-
-const BACKEND_URL = language.BACKEND_URL;
-const DELAY = 700;
-const FAST_DELAY = 200;
 const QUAN_FIELDS = [0, 6];
 const COMPUTER_FIELDS = [1, 2, 3, 4, 5];
 const PLAYER_FIELDS = [11, 10, 9, 8, 7];
-const INITIAL_BOARD = [10, 5, 5, 5, 5, 5, 10, 5, 5, 5, 5, 5];
-const INITIAL_SCORE = { PLAYER: 0, COMPUTER: 0 };
+const DELAY = 700;
+const SPEDUP_DELAY = 200;
 const BOARD_SIZE = 12;
 
-const fast = ref(false);
+const language = useLanguage();
+const store = useStore();
+const props = defineProps(["level"]);
+const emit = defineEmits(["gameEnded"]);
+
 const board = ref([]);
-const score = ref(INITIAL_SCORE);
+const score = ref({ PLAYER: 0, COMPUTER: 0 });
 const turn = ref("PLAYER");
 const winner = ref("");
+const highlightedField = ref(null);
+const highlightColor = ref(null);
 const selectedCitizen = ref(null);
-const modal = ref(null);
-const left = ref(true);
-const right = ref(true);
+const hintsLeft = ref(3);
+const hintDirection = ref(null);
+const spedUp = ref(false);
+const isTurn = ref(true);
 
-function color_field(pos, color) {
-    const field = document.getElementById(`field${pos}`);
-    if (!field) return;
-    field.classList.add(color);
+defineExpose({
+    board,
+    score,
+    turn,
+    winner,
+    isTurn,
+    animateMove,
+    hintsLeft,
+});
+
+function isValidGame() {
+    if (!board.value || board.value.length == 0) {
+        return false;
+    }
+    return true;
 }
 
-function uncolor_field(pos, color) {
-    const field = document.getElementById(`field${pos}`);
-    if (!field) return;
-    field.classList.remove(color);
+function undo() {
+    store.undo();
+    const lastGameState = store.getCurrentState().game;
+    board.value = lastGameState.board;
+    score.value = lastGameState.score;
+    turn.value = lastGameState.turn ? "COMPUTER" : "PLAYER";
+    winner.value = "";
 }
 
-function getNormalizedPos(pos) {
-    let m = Math.floor(pos / BOARD_SIZE);
-    return pos - m * BOARD_SIZE;
-}
-
-function toggleFast() {
-    fast.value = !fast.value;
+function getHint() {
+    if (hintsLeft.value == 0 || winner.value) {
+        return;
+    }
+    const hint = store.getCurrentState().hint;
+    hintsLeft.value -= 1;
+    hintDirection.value = hint.direction;
+    selectedCitizen.value = hint.pos;
 }
 
 function setSelectedCitizen(citizen) {
@@ -65,49 +79,23 @@ function setSelectedCitizen(citizen) {
     }
 }
 
-function undo() {
-    store.undo();
-    const lastGameState = store.getCurrentState().game;
-    board.value = lastGameState.board;
-    score.value = lastGameState.score;
-    turn.value = lastGameState.turn ? "COMPUTER" : "PLAYER";
-    winner.value = "";
-
-}
-
-let hintsLeft = ref(3);
-function getHint() {
-    if (hintsLeft.value == 0 || winner.value) {
-        return;
-    }
-    const hint = store.getCurrentState().hint;
-    hintsLeft.value -= 1;
-    if (hint.direction == 1) {
-        left.value = true;
-        right.value = false;
-    } else {
-        left.value = false;
-        right.value = true;
-    }
-    selectedCitizen.value = hint.pos;
-}
-
-defineExpose({
-    fast,
-    toggleFast,
-    undo,
-    getHint,
-    hintsLeft,
-});
-
 async function checkEnd() {
     if (QUAN_FIELDS.every(pos => board.value[pos] == 0)) {
-        score.value["PLAYER"] += board.value.slice(7, 12).reduce((a, b) => a + b, 0);
         score.value["COMPUTER"] += board.value.slice(1, 6).reduce((a, b) => a + b, 0);
+        score.value["PLAYER"] += board.value.slice(7, 12).reduce((a, b) => a + b, 0);
         board.value = Array(12).fill(0);
         return true;
     }
     return false;
+}
+
+function getNormalizedPos(pos) {
+    let m = Math.floor(pos / BOARD_SIZE);
+    return pos - m * BOARD_SIZE;
+}
+
+function switchTurn() {
+    turn.value = turn.value == "COMPUTER" ? "PLAYER" : "COMPUTER";
 }
 
 async function updateAllowedMoves() {
@@ -123,44 +111,34 @@ async function updateAllowedMoves() {
     }
 }
 
-function switchTurn() {
-    turn.value = turn.value == "COMPUTER" ? "PLAYER" : "COMPUTER";
-}
-
-function delay(time = fast.value ? FAST_DELAY : DELAY) {
-    return new Promise((resolve) => setTimeout(resolve, time));
-}
-
-const pickedUp = ref([null, null]);
-
-const isTurn = ref(false);
 async function animateMove(pos, direction) {
-    pickedUp.value = [pos, (turn.value == "PLAYER" ? "blue" : "green")];
-    let toDistribute = board.value[pos];
+    highlightColor.value = turn.value == "PLAYER" ? "blue" : "green";
+    highlightedField.value = pos;
+    const toDistribute = board.value[pos];
     board.value[pos] = 0;
     let index = pos;
-    await delay();
+    await delay(spedUp.value ? SPEDUP_DELAY : DELAY);
 
     for (let i = 1; i <= toDistribute; i++) {
         index = getNormalizedPos(pos + i * direction);
         board.value[index] += 1;
-        await delay();
+        await delay(spedUp.value ? SPEDUP_DELAY : DELAY);
     }
 
-    pickedUp.value = [null, null];
+    highlightedField.value = null;
     index = getNormalizedPos(index + direction);
     if (board.value[index] == 0) {
         let next_index = getNormalizedPos(index + direction);
         while ((board.value[index] == 0) && (board.value[next_index] != 0)) {
-            color_field(index, "red");
-            await delay();
+            highlightColor.value = "red";
+            highlightedField.value = index;
+            await delay(spedUp.value ? SPEDUP_DELAY : DELAY);
             score.value[turn.value] += board.value[next_index];
             board.value[next_index] = 0;
-            uncolor_field(index, "red");
+            highlightedField.value = null;
             index = getNormalizedPos(next_index + direction);
             next_index = getNormalizedPos(index + direction);
         }
-
         switchTurn();
         await updateAllowedMoves();
     }
@@ -170,44 +148,17 @@ async function animateMove(pos, direction) {
     } else {
         await animateMove(index, direction);
     }
-    await delay();
+    await delay(spedUp.value ? SPEDUP_DELAY : DELAY);
 }
 
-async function start_game() {
-    while (language.isBackendReady == false) {
-        await delay(500);
-    }
-    try {
-        const response = await axios.get(BACKEND_URL + "/game/start/" + props.level);
-        store.addState(response.data);
-        let next_move = response.data.last_move;
-        board.value = INITIAL_BOARD;
-        score.value = INITIAL_SCORE;
-        winner.value = "";
-        if (next_move) {
-
-            turn.value = "COMPUTER";
-            isTurn.value = false;
-            await animateMove(next_move.pos, next_move.direction);
-            isTurn.value = true;
-        }
-        else {
-            isTurn.value = true;
-            turn.value = "PLAYER"
-        }
-
-    } catch (error) {
-        console.error("Error fetching game state:", error);
-    }
-}
 
 async function makeMove(pos, direction) {
-    pickedUp.value = [null, null];
+    highlightedField.value = null;
     try {
         isTurn.value = false;
         turn.value = "PLAYER";
         await animateMove(pos, direction);
-        const response = await axios.post(BACKEND_URL + "/game/move/" + props.level, {
+        const response = await axios.post(language.BACKEND_URL + "/game/move/" + props.level, {
             game: store.getCurrentState().game,
             move: { pos, direction },
         });
@@ -221,10 +172,7 @@ async function makeMove(pos, direction) {
             isTurn.value = false;
             winner.value = response.data.winner;
             if (winner.value == "PLAYER") {
-                while (modal.value == null) {
-                    await delay(500);
-                }
-                modal.value.showModal();
+                emit("gameEnded");
             }
         }
         if (JSON.stringify(board.value) != JSON.stringify(store.getCurrentState().game.board)) {
@@ -237,12 +185,6 @@ async function makeMove(pos, direction) {
     }
 }
 
-function getGameScore() {
-    const levelBonus = { "easy": 1, "normal": 2, "hard": 3 };
-    let result = (score.value["PLAYER"] - score.value["COMPUTER"] + (levelBonus[props.level] * 70) + (hintsLeft.value * 10)) * 100;
-    return Math.round(result);
-}
-
 function handleClickOutside(event) {
     if (event.target.closest('.exclude-click-outside')) return;
     if (!event.target.closest('.citizen')) {
@@ -252,7 +194,6 @@ function handleClickOutside(event) {
 
 onBeforeMount(async () => {
     document.addEventListener('click', handleClickOutside);
-    await start_game();
 });
 
 onBeforeUnmount(() => {
@@ -262,7 +203,32 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <span v-if="!board || board.length == 0">
+    <div class="controls">
+        <Button @click="undo()">
+            <img src="../assets/undo.svg" />
+        </Button>
+        <Button @click="$router.go()">
+            <img src="../assets/reload.png" />
+        </Button>
+        <RouterLink to="/">
+            <Button color="orange">
+                {{ language.getText("back") }}
+            </Button>
+        </RouterLink>
+        <Button v-if="spedUp" @click="spedUp = !spedUp" class="green exclude-click-outside">
+            <img src="../assets/pause.png" class="green" />
+        </Button>
+        <Button v-else @click="spedUp = !spedUp" class="exclude-click-outside">
+            <img src="../assets/fast_forward.png" />
+        </Button>
+        <Button @click="getHint()" class="exclude-click-outside">
+            <img src="../assets/hint.svg" />
+        </Button>
+        <span class="hint-tracker">
+            <Counter :count="hintsLeft" id="hints-counter" />/3
+        </span>
+    </div>
+    <span v-if="!isValidGame()">
         {{ language.getText("loading") }}
     </span>
     <span v-else-if="winner == 'Draw'">
@@ -283,38 +249,44 @@ onBeforeUnmount(() => {
     <span>🤖
         <Counter :count="score['COMPUTER']" id="comp_score" />
     </span>
-    <div v-if="board && board.length != 0" class="board">
-        <Quan v-for="id in QUAN_FIELDS" :key="id" :id="id" :count="board[id]" />
-        <ComputerCitizen v-for="id in COMPUTER_FIELDS" :key="id" :id="id" :count="board[id]" :pickedUp="pickedUp" />
-        <UserCitizen v-for="id in PLAYER_FIELDS" :key="id" :id="id" :count="board[id]"
-            :selectedCitizen="selectedCitizen" :makeMove="makeMove" :setSelectedCitizen="setSelectedCitizen"
-            :left="left" :right="right" :isTurn="isTurn" :pickedUp="pickedUp" />
+    <div v-if="isValidGame()" class="board">
+        <Quan v-for="id in QUAN_FIELDS" :key="id" :id="id" :count="board[id]" :highlightedField="highlightedField" />
+        <Citizen v-for="id in COMPUTER_FIELDS" :key="id" :id="id" :count="board[id]"
+            :highlightedField="highlightedField" :color="highlightColor" />
+        <Citizen v-for="id in PLAYER_FIELDS" :key="id" :id="id" :count="board[id]" :highlightedField="highlightedField"
+            :color="highlightColor" :selectedCitizen="selectedCitizen" :direction="hintDirection"
+            :setSelectedCitizen="setSelectedCitizen" :makeMove="makeMove" :clickable="isTurn" />
     </div>
     <Loading v-else />
     <span>🫵
         <Counter :count="score['PLAYER']" id="you_score" />
     </span>
-    <Modal v-if="winner == 'PLAYER'" :score="getGameScore()" :level="props.level" ref="modal" />
 </template>
 
 <style scoped>
-.board>* {
-    font-size: 4cqw;
+.controls,
+.controls>div {
+    display: grid;
+    grid-template-columns: repeat(5, auto);
+    align-items: center;
 }
 
-span {
+.hint-tracker {
+    grid-column-start: 5;
+    grid-column-end: 6;
+    font-size: 20px;
     font-weight: 900;
     display: flex;
-    flex-direction: row;
+    justify-content: center;
 }
 
-div {
-    width: 100%;
+img {
+    filter: invert(100%) drop-shadow(0.5px 0.5px 0.5px #0066a2) drop-shadow(-0.5px -0.5px 0.5px #0066a2) drop-shadow(0.5px -0.5px 0.5px #0066a2) drop-shadow(-0.5px 0.5px 0.5px #0066a2) drop-shadow(2px 0 0.5px #0066a2) drop-shadow(0 3px 0.5px #004a87);
+    width: 20px;
 }
 
-.red {
-    background-color: rgb(255, 155, 155);
-    mix-blend-mode: multiply;
+img.green {
+    filter: invert(100%) drop-shadow(0.5px 0.5px 0.5px #54d440) drop-shadow(-0.5px -0.5px 0.5px #54d440) drop-shadow(0.5px -0.5px 0.5px #54d440) drop-shadow(-0.5px 0.5px 0.5px #54d440) drop-shadow(2px 0 0.5px #54d440) drop-shadow(0 3px 0.5px #1d4c16);
 }
 
 .board {
@@ -327,6 +299,17 @@ div {
     background-repeat: no-repeat;
     background-size: 100%;
     z-index: 1;
+    width: 100%;
+}
+
+.board>* {
+    font-size: 4cqw;
+}
+
+span {
+    font-weight: 900;
+    display: flex;
+    flex-direction: row;
 }
 
 #field0 {

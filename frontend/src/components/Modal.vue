@@ -11,6 +11,8 @@ const rank = ref(null);
 const name = ref(null);
 const country = ref(null);
 
+defineExpose({ showModal });
+
 async function getCountry() {
     try {
         const response = await fetch('https://ipapi.co/json/');
@@ -30,7 +32,6 @@ function hideModal() {
     document.querySelector('.modal-backdrop').classList.add('hidden');
 }
 
-defineExpose({ showModal });
 
 async function saveScore() {
     if (rank.value < 100) {
@@ -49,7 +50,7 @@ onMounted(async () => {
 
 <template>
     <div class="modal-backdrop">
-        <div class="card">
+        <div class="modal card">
             <div class="modal-header">
                 <h2>{{ language.getText("congrats") }}</h2>
                 <div>
@@ -58,27 +59,25 @@ onMounted(async () => {
                     </Button>
                 </div>
             </div>
-            <div class="modal-content">
-                <div v-if="rank < 100">
-                    <p>{{ language.getText("rankPre") }} {{ rank + 1 }} {{ language.getText("rankMain") }} "{{
-                        language.getText(props.level.toLowerCase()) }}" {{ language.getText("rankPost") }}</p>
-                    <table>
-                        <div class="row">
-                            <div class="column">
-                                <Medal :rank="rank + 1" />
-                            </div>
-                            <div class="column">
-                                <input type="text" ref="name" :value="language.getText('unknown')" />
-                            </div>
-                            <div class="column">
-                                {{ props.score }}</div>
-                            <div class="column">
-                                <span :class="'fi fi-' + language.getCountry()"></span>
-                            </div>
-                        </div>
-                    </table>
+            <div class="modal-content" v-if="rank < 100">
+                <p>{{ language.getText("rankPre") }} {{ rank + 1 }} {{ language.getText("rankMain") }} "{{
+                    language.getText(props.level.toLowerCase()) }}" {{ language.getText("rankPost") }}</p>
+                <div class="row">
+                    <div class="column">
+                        <Medal :rank="rank + 1" />
+                    </div>
+                    <div class="column">
+                        <input type="text" spellcheck="false" ref="name" :value="language.getText('unknown')" />
+                    </div>
+                    <div class="column">
+                        {{ props.score }}</div>
+                    <div class="column">
+                        <span :class="'fi fi-' + language.getCountry()"></span>
+                    </div>
                 </div>
-                <p v-else>{{ language.getText("noRank") }}</p>
+            </div>
+            <div class="modal-content" v-else>{{ language.getText("noRank") }}</div>
+            <div class="modal-footer">
                 <Button color="green" @click="async () => await saveScore()">
                     {{ language.getText("save") }}
                 </Button>
@@ -107,11 +106,20 @@ onMounted(async () => {
     overflow: hidden;
 }
 
+.modal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    max-width: min-content;
+}
+
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
+    margin: -10px -10px 0 0;
 }
 
 .modal-header>h2 {
@@ -127,8 +135,15 @@ onMounted(async () => {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 1em;
+    padding: 0.5em 0;
+    gap: 0.5em;
     max-width: min-content;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 7px;
 }
 
 input {

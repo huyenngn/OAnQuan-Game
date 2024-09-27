@@ -1,12 +1,14 @@
 <script setup>
-const props = defineProps(['left', 'right']);
+const props = defineProps(['display']);
 const emit = defineEmits(['left', 'right']);
 </script>
 
 <template>
     <div class="direction">
-        <img :class="props.left ? 'clickable' : ''" src=" @/assets/arrow_left.png" @click="emit('left')" />
-        <img :class="props.right ? 'clickable' : ''" src="@/assets/arrow_right.png" @click="emit('right')" />
+        <img :class="!props.display || props.display == 1 ? 'clickable' : ''" src=" @/assets/arrow_left.png"
+            @click="emit('left')" />
+        <img :class="!props.display || props.display == -1 ? 'clickable' : ''" src="@/assets/arrow_right.png"
+            @click="emit('right')" />
     </div>
 </template>
 

@@ -8,17 +8,26 @@ const language = useLanguage();
 
 <template>
     <nav>
-        <RouterLink to="/game/easy">
-            <Button color="green">🍃{{ language.getText("easy") }}</Button>
+        <Button color="red">
+            <select name="difficulty" id="difficulty" @change="$router.push($event.target.value)">
+                <option style="display:none">{{ language.getText("newGame") }}</option>
+                <option value="/game/easy">🍃 {{ language.getText("easy") }}</option>
+                <option value="/game/normal">🌊 {{ language.getText("normal") }}</option>
+                <option value="/game/hard">🔥 {{ language.getText("hard") }}</option>
+            </select>
+        </Button>
+        <RouterLink to="/campaign">
+            <Button color="blue">
+                {{ language.getText("campaign") }}
+            </Button>
         </RouterLink>
-        <RouterLink to="/game/normal">
-            <Button>🌊{{ language.getText("normal") }}</Button>
-        </RouterLink>
-        <RouterLink to="/game/hard">
-            <Button color="red">🔥{{ language.getText("hard") }}</Button>
+        <RouterLink to="/tutorial">
+            <Button color="green">
+                {{ language.getText("tutorial") }}
+            </Button>
         </RouterLink>
         <RouterLink to="leaderboard">
-            <Button color="orange">🏆{{ language.getText("leaderboard") }}</Button>
+            <Button color="orange">🏆 {{ language.getText("leaderboard") }}</Button>
         </RouterLink>
     </nav>
     <p>
@@ -36,6 +45,34 @@ nav {
     flex-direction: column;
     gap: 0.75em;
     margin: 0.75em;
+}
+
+select {
+    font-size: inherit;
+    line-height: inherit;
+    letter-spacing: inherit;
+    text-shadow: inherit;
+    font-weight: inherit;
+    color: inherit;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border: none;
+    overflow: hidden;
+    text-align: center;
+    height: fit-content;
+}
+
+select:focus {
+    outline: none;
+    border: none;
+}
+
+option {
+    color: var(--color-text);
 }
 
 p {

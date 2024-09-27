@@ -28,11 +28,6 @@ dependencies = ["fastapi", "uvicorn", "pydantic"]
 Homepage = "https://github.com/huyenngn/oanquan"
 Documentation = "https://huyenngn.github.io/oanquan/"
 
-[project.optional-dependencies]
-docs = ["furo", "sphinx", "sphinx-copybutton", "tomli; python_version<'3.11'"]
-
-test = ["pytest", "pytest-cov"]
-
 [tool.pytest.ini_options]
 addopts = """
   --import-mode=importlib
