@@ -9,20 +9,8 @@ const language = useLanguage();
 const props = defineProps(["score", "level"]);
 const rank = ref(null);
 const name = ref(null);
-const country = ref(null);
 
 defineExpose({ showModal });
-
-async function getCountry() {
-    try {
-        const response = await fetch('https://ipapi.co/json/');
-        const data = await response.json();
-        return data.country_code.toLowerCase();
-    } catch (error) {
-        console.error("Error fetching country code:", error);
-        return "xx";
-    }
-};
 
 function showModal() {
     document.querySelector('.modal-backdrop').classList.remove('hidden');
@@ -35,7 +23,7 @@ function hideModal() {
 
 async function saveScore() {
     if (rank.value < 100) {
-        await addEntry(name.value.value, props.score, country.value, props.level);
+        await addEntry(name.value.value, props.score, language.country, props.level);
     }
     hideModal();
 }
@@ -43,7 +31,6 @@ async function saveScore() {
 onMounted(async () => {
     name.value.focus();
     rank.value = await getRank(props.score, props.level);
-    country.value = await getCountry();
 });
 </script>
 
@@ -72,7 +59,7 @@ onMounted(async () => {
                     <div class="column">
                         {{ props.score }}</div>
                     <div class="column">
-                        <span :class="'fi fi-' + language.getCountry()"></span>
+                        <span :class="'fi fi-' + language.country"></span>
                     </div>
                 </div>
             </div>

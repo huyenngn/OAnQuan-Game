@@ -6,7 +6,7 @@ import random
 import typing as t
 
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, responses
 from fastapi.middleware.cors import CORSMiddleware
 
 from oanquan.alpha_beta import minimax
@@ -41,6 +41,20 @@ def get_move_func(level: Level) -> t.Callable[[OAnQuan], Move]:
         )[0]
         return func
     return make_ab_move
+
+
+@app.get("/missions/{id}")
+def get_mission(id: int):
+    """Get the mission data."""
+    mission_data = {
+                    "game": None,
+                    "hint": None,
+                    "max_moves": 0,
+    }
+    return responses.JSONResponse(
+        content=mission_data,
+        headers={"Cache-Control": "public, max-age=2592000"}
+        )
 
 
 @app.get("/game/start/{level}")

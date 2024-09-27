@@ -7,6 +7,7 @@ import Quan from '@/components/Quan.vue';
 import { useLanguage } from "@/stores/language";
 import { useStore } from "@/stores/state";
 import { delay } from "@/utils";
+import axios from 'axios';
 import { onBeforeMount, onBeforeUnmount, ref } from "vue";
 
 const QUAN_FIELDS = [0, 6];
@@ -29,7 +30,7 @@ const highlightedField = ref(null);
 const highlightColor = ref(null);
 const selectedCitizen = ref(null);
 const hintsLeft = ref(3);
-const hintDirection = ref(null);
+const direction = ref(null);
 const spedUp = ref(false);
 const isTurn = ref(true);
 
@@ -65,13 +66,12 @@ function getHint() {
     }
     const hint = store.getCurrentState().hint;
     hintsLeft.value -= 1;
-    hintDirection.value = hint.direction;
+    direction.value = hint.direction;
     selectedCitizen.value = hint.pos;
 }
 
 function setSelectedCitizen(citizen) {
-    left.value = true;
-    right.value = true;
+    direction.value = null;
     if (selectedCitizen.value == citizen) {
         selectedCitizen.value = null;
     } else {
@@ -254,7 +254,7 @@ onBeforeUnmount(() => {
         <Citizen v-for="id in COMPUTER_FIELDS" :key="id" :id="id" :count="board[id]"
             :highlightedField="highlightedField" :color="highlightColor" />
         <Citizen v-for="id in PLAYER_FIELDS" :key="id" :id="id" :count="board[id]" :highlightedField="highlightedField"
-            :color="highlightColor" :selectedCitizen="selectedCitizen" :direction="hintDirection"
+            :color="highlightColor" :selectedCitizen="selectedCitizen" :direction="direction"
             :setSelectedCitizen="setSelectedCitizen" :makeMove="makeMove" :clickable="isTurn" />
     </div>
     <Loading v-else />

@@ -1,7 +1,8 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
-const GLOBAL_SERVERS = [
+const DEFAULT_BACKEND_URL = "http://127.0.0.1:8080";
+let GLOBAL_SERVERS = [
     {
         long: -120,
         url: import.meta.env.VITE_BACKEND_NA,
@@ -20,14 +21,25 @@ const LANGUAGES = ["en", "de", "vn"];
 
 export const useLanguage = defineStore("language", () => {
     const language = ref("en");
-    const BACKEND_URL = ref("http://127.0.0.1:8080");
+    const BACKEND_URL = ref("");
     const country = ref("xx");
     const isBackendReady = ref(false);
 
-    async function warmUpBackend() {
-        try {
-            await fetch(BACKEND_URL.value, { method: "GET" });
-        } catch (error) {}
+    async function warmUpBackend(long) {
+        while (true) {
+            if (GLOBAL_SERVERS.length === 0) {
+                BACKEND_URL.value = DEFAULT_BACKEND_URL;
+                break;
+            }
+            GLOBAL_SERVERS = GLOBAL_SERVERS.sort(
+                (a, b) => Math.abs(a.long - long) - Math.abs(b.long - long)
+            );
+            BACKEND_URL.value = GLOBAL_SERVERS.shift().url;
+            try {
+                await fetch(BACKEND_URL.value, { method: "GET" });
+                break;
+            } catch (error) {}
+        }
         console.log("Warmed up backend:", BACKEND_URL.value);
         isBackendReady.value = true;
     }
@@ -36,18 +48,7 @@ export const useLanguage = defineStore("language", () => {
         try {
             const response = await fetch("https://ipapi.co/json/");
             const data = await response.json();
-
-            if (GLOBAL_SERVERS.length == 0) {
-                isBackendReady.value = true;
-            } else {
-                BACKEND_URL.value = GLOBAL_SERVERS.reduce((a, b) =>
-                    Math.abs(a.long - data.longitude) <
-                    Math.abs(b.long - data.longitude)
-                        ? a
-                        : b
-                ).url;
-                warmUpBackend();
-            }
+            warmUpBackend(data.longitude);
             country.value = data.country_code.toLowerCase();
             if (LANGUAGES.includes(country.value)) {
                 language.value = country.value;

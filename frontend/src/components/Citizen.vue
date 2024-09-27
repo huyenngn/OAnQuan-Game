@@ -45,19 +45,22 @@ const props = defineProps({
     aspect-ratio: 0.93;
     pointer-events: none;
     position: relative;
-    mix-blend-mode: multiply;
+    z-index: 10;
 }
 
 .red {
     background-color: #ff9595;
+    mix-blend-mode: multiply;
 }
 
 .blue {
     background-color: #aadefd;
+    mix-blend-mode: multiply;
 }
 
 .green {
     background-color: #8ae994;
+    mix-blend-mode: multiply;
 }
 
 .clickable {

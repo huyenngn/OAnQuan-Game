@@ -45,9 +45,12 @@ async function startGame() {
     }
 }
 
-const gameEnded = () => {
+async function gameEnded() {
     if (game.value.winner == "PLAYER") {
         displayModal.value = true;
+        while (modal.value == null) {
+            await delay(100);
+        }
         modal.value.showModal();
     }
 };

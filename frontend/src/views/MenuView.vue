@@ -1,16 +1,24 @@
 <script setup>
 import Button from '@/components/Button.vue';
 import { useLanguage } from '@/stores/language';
+import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
 
 const language = useLanguage();
+const difficultySelect = ref(null);
+
+function focusSelect() {
+    difficultySelect.value.focus();
+}
 </script>
 
 <template>
     <nav>
-        <Button color="red">
-            <select name="difficulty" id="difficulty" @change="$router.push($event.target.value)">
-                <option style="display:none">{{ language.getText("newGame") }}</option>
+        <Button color="red" @click="focusSelect">
+            {{ language.getText("newGame") }}
+            <select name="difficulty" id="difficulty" @change="$router.push($event.target.value)"
+                ref="difficultySelect">
+                <option style="display:none"> </option>
                 <option value="/game/easy">🍃 {{ language.getText("easy") }}</option>
                 <option value="/game/normal">🌊 {{ language.getText("normal") }}</option>
                 <option value="/game/hard">🔥 {{ language.getText("hard") }}</option>
@@ -64,6 +72,12 @@ select {
     overflow: hidden;
     text-align: center;
     height: fit-content;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 140%;
 }
 
 select:focus {
