@@ -22,8 +22,21 @@ const language = useLanguage();
 </template>
 
 <style scoped>
+div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 800px;
+    margin: 1em 1em;
+}
+
+h1 {
+    font-size: 23px;
+    font-weight: bold;
+}
+
 p {
-    font-size: 1em;
+    font-size: 20px;
     font-weight: normal;
 }
 </style>
