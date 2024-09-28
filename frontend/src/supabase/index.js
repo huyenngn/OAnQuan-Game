@@ -8,8 +8,8 @@ const supabase = createClient(
 async function fetchEntries(filters = {}) {
     let query = supabase.from("leaderboard").select("*");
 
-    if (filters.level) {
-        query = query.eq("level", filters.level.toUpperCase());
+    if (filters.difficulty) {
+        query = query.eq("difficulty", filters.difficulty.toUpperCase());
     }
     if (filters.country) {
         query = query.eq("country", filters.country);
@@ -29,13 +29,13 @@ async function fetchEntries(filters = {}) {
     }
 }
 
-async function addEntry(name, score, country, level) {
+async function addEntry(name, score, country, difficulty) {
     const { error } = await supabase.from("leaderboard").insert([
         {
             name: name,
             score: score,
             country: country,
-            level: level.toUpperCase(),
+            difficulty: difficulty.toUpperCase(),
         },
     ]);
     if (error) {
@@ -43,11 +43,11 @@ async function addEntry(name, score, country, level) {
     }
 }
 
-async function getRank(score, level) {
+async function getRank(score, difficulty) {
     const { data, error } = await supabase
         .from("leaderboard")
-        .select("score, level")
-        .eq("level", level.toUpperCase())
+        .select("score, difficulty")
+        .eq("difficulty", difficulty.toUpperCase())
         .order("score", { ascending: false })
         .limit(100)
         .gte("score", score);
@@ -68,3 +68,25 @@ async function getCountries() {
 }
 
 export { addEntry, fetchEntries, getCountries, getRank };
+
+async function getChallenge(id) {
+    const { data, error } = await supabase
+        .from("challenges")
+        .select("*")
+        .eq("id", id);
+    if (error) {
+        console.error(error);
+    } else {
+        return data[0];
+    }
+}
+
+async function getNumberOfChallenges() {
+    const { data, count } = await supabase
+        .from("challenges")
+        .select("*", { count: "exact", head: true });
+
+    return count;
+}
+
+export { getChallenge, getNumberOfChallenges };

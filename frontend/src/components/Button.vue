@@ -94,4 +94,16 @@ const props = defineProps(["color"]);
     top: 2px;
     box-shadow: 0 4px 0 #348628, 0 6px 1px 1px rgba(0, 0, 0, .3), 0 8px 0 5px #2a6d20, 0 10px 0 5px #39822e, 0 13px 0 5px #1d4c16, 0 13px 1px 6px rgba(0, 0, 0, .3);
 }
+
+.game-button.grey {
+    background: repeating-linear-gradient(45deg, #b0b0b0, #b0b0b0 5px, #a8a8a8 5px, #a8a8a8 10px);
+    box-shadow: 0 6px 0 #7a7a7a, 0 8px 1px 1px rgba(0, 0, 0, .3), 0 10px 0 5px #4f4f4f, 0 12px 0 5px #6a6a6a, 0 15px 0 5px #3b3b3b, 0 15px 1px 6px rgba(0, 0, 0, .3);
+    border-bottom: 3px solid rgba(80, 80, 80, 0.5);
+    text-shadow: 2px 2px 1px #7a7a7a, -2px 2px 1px #7a7a7a, 2px -2px 1px #7a7a7a, -2px -2px 1px #7a7a7a, 0px 2px 1px #7a7a7a, 0px -2px 1px #7a7a7a, 0px 4px 1px #4f4f4f, 2px 4px 1px #4f4f4f, -2px 4px 1px #4f4f4f;
+}
+
+.game-button.grey:hover {
+    top: 2px;
+    box-shadow: 0 4px 0 #7a7a7a, 0 6px 1px 1px rgba(0, 0, 0, .3), 0 8px 0 5px #4f4f4f, 0 10px 0 5px #6a6a6a, 0 13px 0 5px #3b3b3b, 0 13px 1px 6px rgba(0, 0, 0, .3);
+}
 </style>

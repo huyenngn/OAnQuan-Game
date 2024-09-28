@@ -3,10 +3,17 @@ import { useLanguage } from '@/stores/language';
 import { RouterView } from 'vue-router';
 
 const language = useLanguage();
+
+function setLocalStorage() {
+    const lang = document.getElementById("lang").value;
+    try {
+        localStorage.setItem("language", lang);
+    } catch (error) { }
+}
 </script>
 
 <template>
-    <select v-model="language.language" id="lang">
+    <select @change="setLocalStorage" v-model="language.language" id="lang">
         <option value="en">English</option>
         <option value="de">Deutsch</option>
         <option value="vn">Tiếng Việt</option>

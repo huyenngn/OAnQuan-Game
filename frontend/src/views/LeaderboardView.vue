@@ -5,12 +5,11 @@ import Medal from '@/components/Medal.vue';
 import { useLanguage } from '@/stores/language';
 import { fetchEntries, getCountries } from '@/supabase';
 import { computed, onBeforeMount, ref } from 'vue';
-import { RouterLink } from 'vue-router';
 
 const language = useLanguage();
 
 const country = ref("all");
-const level = ref("all");
+const difficulty = ref("all");
 const time = ref("all");
 const countries = ref([]);
 const entries = ref([]);
@@ -27,7 +26,7 @@ const filter = computed(() => {
     }
     let out = {
         time: timestamp,
-        level: level.value,
+        difficulty: difficulty.value,
         country: country.value,
     };
     for (let key in out) {
@@ -38,12 +37,12 @@ const filter = computed(() => {
     return out;
 });
 
-function getLevelEmoji(level) {
-    if (level == "EASY") {
+function getdifficultyEmoji(difficulty) {
+    if (difficulty == "EASY") {
         return "🍃";
-    } else if (level == "NORMAL") {
+    } else if (difficulty == "NORMAL") {
         return "🌊";
-    } else if (level == "HARD") {
+    } else if (difficulty == "HARD") {
         return "🔥";
     }
 }
@@ -61,11 +60,9 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-    <RouterLink to="/">
-        <Button color="orange">
-            {{ language.getText("back") }}
-        </Button>
-    </RouterLink>
+    <Button color="orange" @click="$router.push('/')">
+        {{ language.getText("back") }}
+    </Button>
     <div class="filters">
         <select v-model="time" id="time" @change="fetchAndSetEntries">
             <option value="week"> {{ language.getText("week") }}</option>
@@ -73,7 +70,7 @@ onBeforeMount(async () => {
             <option value="ytd"> {{ language.getText("ytd") }}</option>
             <option value="all"> {{ language.getText("allTime") }}</option>
         </select>
-        <select v-model="level" id="level" @change="fetchAndSetEntries">
+        <select v-model="difficulty" id="difficulty" @change="fetchAndSetEntries">
             <option value="all">{{ language.getText("all") }}</option>
             <option value="EASY">🍃 {{ language.getText("easy") }}</option>
             <option value="NORMAL">🌊 {{ language.getText("normal") }}</option>
@@ -90,7 +87,7 @@ onBeforeMount(async () => {
                 <Medal :rank="index + 1" />
             </div>
             <p>{{ entry.name }}</p>
-            <p>{{ getLevelEmoji(entry.level) + entry.score }}</p>
+            <p>{{ getdifficultyEmoji(entry.difficulty) + entry.score }}</p>
             <div class="column"><span :class="'fi fi-' + entry.country"></span></div>
         </div>
     </div>

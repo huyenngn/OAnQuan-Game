@@ -15,7 +15,7 @@ function focusSelect() {
 <template>
     <nav>
         <Button color="red" @click="focusSelect">
-            {{ language.getText("newGame") }}
+            {{ language.getText("classic") }}
             <select name="difficulty" id="difficulty" @change="$router.push($event.target.value)"
                 ref="difficultySelect">
                 <option style="display:none"> </option>
@@ -24,9 +24,9 @@ function focusSelect() {
                 <option value="/game/hard">🔥 {{ language.getText("hard") }}</option>
             </select>
         </Button>
-        <RouterLink to="/campaign">
+        <RouterLink to="/challenges">
             <Button color="blue">
-                {{ language.getText("campaign") }}
+                {{ language.getText("challenges") }}
             </Button>
         </RouterLink>
         <RouterLink to="/tutorial">

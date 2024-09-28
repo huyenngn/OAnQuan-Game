@@ -8,7 +8,7 @@ import { useLanguage } from "@/stores/language";
 import { useStore } from "@/stores/state";
 import { delay } from "@/utils";
 import axios from 'axios';
-import { onBeforeMount, onBeforeUnmount, ref } from "vue";
+import { onBeforeMount, onBeforeUnmount, onMounted, ref } from "vue";
 
 const QUAN_FIELDS = [0, 6];
 const COMPUTER_FIELDS = [1, 2, 3, 4, 5];
@@ -19,17 +19,27 @@ const BOARD_SIZE = 12;
 
 const language = useLanguage();
 const store = useStore();
-const props = defineProps(["level"]);
+const props = defineProps({
+    difficulty: {
+        type: String,
+        required: true,
+    },
+    initialHints: {
+        type: Number,
+        default: 3,
+    },
+});
+
 const emit = defineEmits(["gameEnded"]);
 
 const board = ref([]);
-const score = ref({ PLAYER: 0, COMPUTER: 0 });
-const turn = ref("PLAYER");
+const score = ref({});
+const turn = ref("");
 const winner = ref("");
 const highlightedField = ref(null);
 const highlightColor = ref(null);
 const selectedCitizen = ref(null);
-const hintsLeft = ref(3);
+const hintsLeft = ref(props.initialHints);
 const direction = ref(null);
 const spedUp = ref(false);
 const isTurn = ref(true);
@@ -45,7 +55,7 @@ defineExpose({
 });
 
 function isValidGame() {
-    if (!board.value || board.value.length == 0) {
+    if (!board.value || board.value.length == 0 || !score.value || !turn.value) {
         return false;
     }
     return true;
@@ -158,7 +168,7 @@ async function makeMove(pos, direction) {
         isTurn.value = false;
         turn.value = "PLAYER";
         await animateMove(pos, direction);
-        const response = await axios.post(language.BACKEND_URL + "/game/move/" + props.level, {
+        const response = await axios.post(language.BACKEND_URL + "/game/move/" + props.difficulty, {
             game: store.getCurrentState().game,
             move: { pos, direction },
         });
@@ -171,9 +181,7 @@ async function makeMove(pos, direction) {
         if (await checkEnd()) {
             isTurn.value = false;
             winner.value = response.data.winner;
-            if (winner.value == "PLAYER") {
-                emit("gameEnded");
-            }
+            emit("gameEnded");
         }
         if (JSON.stringify(board.value) != JSON.stringify(store.getCurrentState().game.board)) {
             console.error("Board state mismatch:", board.value, store.getCurrentState().game.board);
@@ -185,6 +193,13 @@ async function makeMove(pos, direction) {
     }
 }
 
+function toggleSpeed() {
+    spedUp.value = !spedUp.value;
+    try {
+        localStorage.setItem("spedUp", spedUp.value);
+    } catch (error) { }
+}
+
 function handleClickOutside(event) {
     if (event.target.closest('.exclude-click-outside')) return;
     if (!event.target.closest('.citizen')) {
@@ -194,6 +209,12 @@ function handleClickOutside(event) {
 
 onBeforeMount(async () => {
     document.addEventListener('click', handleClickOutside);
+});
+
+onMounted(() => {
+    try {
+        spedUp.value = localStorage.getItem("spedUp") == "true";
+    } catch (error) { }
 });
 
 onBeforeUnmount(() => {
@@ -210,22 +231,20 @@ onBeforeUnmount(() => {
         <Button @click="$router.go()">
             <img src="../assets/reload.png" />
         </Button>
-        <RouterLink to="/">
-            <Button color="orange">
-                {{ language.getText("back") }}
-            </Button>
-        </RouterLink>
-        <Button v-if="spedUp" @click="spedUp = !spedUp" class="green exclude-click-outside">
+        <Button color="orange" @click="$router.go(-1)">
+            {{ language.getText("back") }}
+        </Button>
+        <Button v-if="spedUp" @click="toggleSpeed" class="green exclude-click-outside">
             <img src="../assets/pause.png" class="green" />
         </Button>
-        <Button v-else @click="spedUp = !spedUp" class="exclude-click-outside">
+        <Button v-else @click="toggleSpeed" class="exclude-click-outside">
             <img src="../assets/fast_forward.png" />
         </Button>
         <Button @click="getHint()" class="exclude-click-outside">
             <img src="../assets/hint.svg" />
         </Button>
         <span class="hint-tracker">
-            <Counter :count="hintsLeft" id="hints-counter" />/3
+            <Counter :count="hintsLeft" id="hints-counter" />/{{ initialHints }}
         </span>
     </div>
     <span v-if="!isValidGame()">
@@ -246,24 +265,40 @@ onBeforeUnmount(() => {
     <span v-else>
         {{ language.getText("waiting") }}
     </span>
-    <span>🤖
-        <Counter :count="score['COMPUTER']" id="comp_score" />
-    </span>
-    <div v-if="isValidGame()" class="board">
-        <Quan v-for="id in QUAN_FIELDS" :key="id" :id="id" :count="board[id]" :highlightedField="highlightedField" />
-        <Citizen v-for="id in COMPUTER_FIELDS" :key="id" :id="id" :count="board[id]"
-            :highlightedField="highlightedField" :color="highlightColor" />
-        <Citizen v-for="id in PLAYER_FIELDS" :key="id" :id="id" :count="board[id]" :highlightedField="highlightedField"
-            :color="highlightColor" :selectedCitizen="selectedCitizen" :direction="direction"
-            :setSelectedCitizen="setSelectedCitizen" :makeMove="makeMove" :clickable="isTurn" />
+    <div v-if="isValidGame()" class="game">
+        <span>🤖
+            <Counter :count="score['COMPUTER']" id="comp_score" />
+        </span>
+        <div class="board">
+            <Quan v-for="id in QUAN_FIELDS" :key="id" :id="id" :count="board[id]"
+                :highlightedField="highlightedField" />
+            <Citizen v-for="id in COMPUTER_FIELDS" :key="id" :id="id" :count="board[id]"
+                :highlightedField="highlightedField" :color="highlightColor" />
+            <Citizen v-for="id in PLAYER_FIELDS" :key="id" :id="id" :count="board[id]"
+                :highlightedField="highlightedField" :color="highlightColor" :selectedCitizen="selectedCitizen"
+                :direction="direction" :setSelectedCitizen="setSelectedCitizen" :makeMove="makeMove"
+                :clickable="isTurn" />
+        </div>
+        <span>🫵
+            <Counter :count="score['PLAYER']" id="you_score" />
+        </span>
     </div>
     <Loading v-else />
-    <span>🫵
-        <Counter :count="score['PLAYER']" id="you_score" />
-    </span>
 </template>
 
 <style scoped>
+.game {
+    width: 100%;
+    padding: 0 2em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.controls {
+    margin-bottom: -1rem;
+}
+
 .controls,
 .controls>div {
     display: grid;

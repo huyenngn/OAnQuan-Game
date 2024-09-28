@@ -1,6 +1,6 @@
 <script setup>
+import ClassicModal from "@/components/ClassicModal.vue";
 import Game from "@/components/Game.vue";
-import Modal from "@/components/Modal.vue";
 import { useLanguage } from "@/stores/language";
 import { useStore } from "@/stores/state";
 import { delay } from "@/utils";
@@ -12,7 +12,7 @@ const INITIAL_SCORE = { PLAYER: 0, COMPUTER: 0 };
 
 const language = useLanguage();
 const store = useStore();
-const props = defineProps(["level"]);
+const props = defineProps(["difficulty"]);
 
 const game = ref(null);
 const modal = ref(null);
@@ -23,7 +23,7 @@ async function startGame() {
         await delay(500);
     }
     try {
-        const response = await axios.get(language.BACKEND_URL + "/game/start/" + props.level);
+        const response = await axios.get(language.BACKEND_URL + "/game/start/" + props.difficulty);
         store.addState(response.data);
         game.value.board = INITIAL_BOARD;
         game.value.score = INITIAL_SCORE;
@@ -55,16 +55,16 @@ async function gameEnded() {
     }
 };
 
-const levelBonus = { "easy": 1, "normal": 2, "hard": 3 };
+const difficultyBonus = { "easy": 1, "normal": 2, "hard": 3 };
 function getGameScore() {
-    const result = (game.value.score["PLAYER"] - game.value.score["COMPUTER"] + (levelBonus[props.level] * 70) + (game.value.hintsLeft * 10)) * 100;
+    const result = (game.value.score["PLAYER"] - game.value.score["COMPUTER"] + (difficultyBonus[props.difficulty] * 70) + (game.value.hintsLeft * 10)) * 100;
     return Math.round(result);
 }
 
 function getEmoji() {
-    if (props.level == "easy") {
+    if (props.difficulty == "easy") {
         return "🍃";
-    } else if (props.level == "normal") {
+    } else if (props.difficulty == "normal") {
         return "🌊";
     } else {
         return "🔥";
@@ -78,6 +78,12 @@ onMounted(async () => {
 
 <template>
     <span>{{ getEmoji() }}</span>
-    <Game :level="level" @gameEnded="gameEnded" ref="game" />
-    <Modal v-if="displayModal" :score="getGameScore()" :level="level" ref="modal" />
+    <Game :difficulty="difficulty" @gameEnded="gameEnded" ref="game" />
+    <ClassicModal v-if="displayModal" :score="getGameScore()" :difficulty="difficulty" ref="modal" />
 </template>
+
+<style scoped>
+span {
+    margin-bottom: 0.5em;
+}
+</style>

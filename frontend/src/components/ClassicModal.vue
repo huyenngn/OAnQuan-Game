@@ -6,7 +6,7 @@ import { addEntry, getRank } from '@/supabase';
 import { onMounted, ref } from 'vue';
 
 const language = useLanguage();
-const props = defineProps(["score", "level"]);
+const props = defineProps(["score", "difficulty"]);
 const rank = ref(null);
 const name = ref(null);
 
@@ -23,14 +23,14 @@ function hideModal() {
 
 async function saveScore() {
     if (rank.value < 100) {
-        await addEntry(name.value.value, props.score, language.country, props.level);
+        await addEntry(name.value.value, props.score, language.country, props.difficulty);
     }
     hideModal();
 }
 
 onMounted(async () => {
     name.value.focus();
-    rank.value = await getRank(props.score, props.level);
+    rank.value = await getRank(props.score, props.difficulty);
 });
 </script>
 
@@ -48,7 +48,7 @@ onMounted(async () => {
             </div>
             <div class="modal-content" v-if="rank < 100">
                 <p>{{ language.getText("rankPre") }} {{ rank + 1 }} {{ language.getText("rankMain") }} "{{
-                    language.getText(props.level.toLowerCase()) }}" {{ language.getText("rankPost") }}</p>
+                    language.getText(props.difficulty.toLowerCase()) }}" {{ language.getText("rankPost") }}</p>
                 <div class="row">
                     <div class="column">
                         <Medal :rank="rank + 1" />

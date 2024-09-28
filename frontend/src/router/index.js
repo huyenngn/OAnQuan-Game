@@ -1,5 +1,6 @@
-import BotGameView from "@/views/BotGameView.vue";
-import CampaignSelectionView from "@/views/CampaignSelectionView.vue";
+import ChallengeGameView from "@/views/ChallengeGameView.vue";
+import ChallengeSelectionView from "@/views/ChallengeSelectionView.vue";
+import ClassicGameView from "@/views/ClassicGameView.vue";
 import LeaderboardView from "@/views/LeaderboardView.vue";
 import MenuView from "@/views/MenuView.vue";
 import TutorialView from "@/views/TutorialView.vue";
@@ -14,9 +15,9 @@ const router = createRouter({
             component: MenuView,
         },
         {
-            path: "/game/:level",
+            path: "/game/:difficulty",
             name: "game",
-            component: BotGameView,
+            component: ClassicGameView,
             props: true,
         },
         {
@@ -25,9 +26,15 @@ const router = createRouter({
             component: TutorialView,
         },
         {
-            path: "/campaign",
-            name: "campaign",
-            component: CampaignSelectionView,
+            path: "/challenges",
+            name: "challenges",
+            component: ChallengeSelectionView,
+        },
+        {
+            path: "/challenge/:id",
+            name: "challenge",
+            component: ChallengeGameView,
+            props: true,
         },
         {
             path: "/leaderboard",

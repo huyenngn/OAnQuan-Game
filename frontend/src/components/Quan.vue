@@ -6,7 +6,7 @@ const props = defineProps(['id', 'count', 'highlightedField']);
 </script>
 
 <template>
-    <div class="quan" :id="'field' + id" :style="highlightedField == id ? 'background-color: #ff9595' : ''">
+    <div :class="'quan' + (highlightedField == id ? 'background-color: #ff9595' : '')" :id="'field' + id">
         <Counter :count="count" :id="'counter' + id" />
     </div>
 </template>
@@ -16,5 +16,10 @@ const props = defineProps(['id', 'count', 'highlightedField']);
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.red {
+    background-color: #ff9595;
+    mix-blend-mode: multiply;
 }
 </style>
