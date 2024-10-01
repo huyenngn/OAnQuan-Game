@@ -59,16 +59,17 @@ onBeforeMount(async () => {
     width: 100%;
     display: flex;
     justify-content: center;
-    margin-top: 2em;
-    overflow: hidden;
+    margin-top: 3rem;
 }
 
 .container {
     width: 300px;
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 4rem;
     align-items: center;
+    overflow: hidden;
+
 }
 
 .gradient {
@@ -76,7 +77,7 @@ onBeforeMount(async () => {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 100px;
+    height: 7rem;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--color-background) 60%);
     z-index: 1;
 }

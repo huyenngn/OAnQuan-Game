@@ -24,8 +24,8 @@ const props = defineProps({
 <style scoped>
 .circular {
     border-radius: 50%;
-    width: 65px;
-    height: 55px;
+    width: 4.5rem;
+    height: 4rem;
 }
 
 .circular::before {

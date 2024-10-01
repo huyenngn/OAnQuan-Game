@@ -79,7 +79,6 @@ onMounted(async () => {
 
 <style scoped>
 span {
-    font-size: 1.5rem;
     font-weight: 900;
     display: flex;
     justify-content: center;

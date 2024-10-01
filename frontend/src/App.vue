@@ -26,6 +26,6 @@ select {
     position: absolute;
     top: 0;
     right: 0;
-    margin: 10px;
+    margin: 0.75rem;
 }
 </style>

@@ -289,7 +289,6 @@ onBeforeUnmount(() => {
 <style scoped>
 .game {
     width: 100%;
-    padding: 0 2em;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -309,7 +308,7 @@ onBeforeUnmount(() => {
 .hint-tracker {
     grid-column-start: 5;
     grid-column-end: 6;
-    font-size: 20px;
+    font-size: 1.25rem;
     font-weight: 900;
     display: flex;
     justify-content: center;
@@ -317,7 +316,7 @@ onBeforeUnmount(() => {
 
 img {
     filter: invert(100%) drop-shadow(0.5px 0.5px 0.5px #0066a2) drop-shadow(-0.5px -0.5px 0.5px #0066a2) drop-shadow(0.5px -0.5px 0.5px #0066a2) drop-shadow(-0.5px 0.5px 0.5px #0066a2) drop-shadow(2px 0 0.5px #0066a2) drop-shadow(0 3px 0.5px #004a87);
-    width: 20px;
+    width: 1.5rem;
 }
 
 img.green {
@@ -328,8 +327,8 @@ img.green {
     display: grid;
     grid-template-columns: 1.25fr repeat(5, 1fr) 1.27fr;
     grid-template-rows: repeat(2, 1fr);
-    grid-column-gap: 0px;
-    grid-row-gap: 0px;
+    grid-column-gap: 0;
+    grid-row-gap: 0;
     background-image: url('@/assets/board.svg');
     background-repeat: no-repeat;
     background-size: 100%;

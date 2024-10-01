@@ -84,6 +84,6 @@ onMounted(async () => {
 
 <style scoped>
 span {
-    margin-bottom: 0.5em;
+    margin-bottom: 1rem;
 }
 </style>

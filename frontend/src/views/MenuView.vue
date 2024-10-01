@@ -52,7 +52,7 @@ nav {
     display: flex;
     flex-direction: column;
     gap: 0.75em;
-    margin: 0.75em;
+    margin: 0.75em 0;
 }
 
 select {
@@ -92,6 +92,6 @@ option {
 p {
     font-size: 1rem;
     font-weight: normal;
-    margin-top: 0.25em;
+    margin-top: 0.25rem;
 }
 </style>

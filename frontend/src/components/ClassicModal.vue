@@ -98,15 +98,16 @@ onMounted(async () => {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 15px;
+    padding: 1rem;
     max-width: min-content;
 }
 
 .modal-header {
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: -10px -10px 0 0;
+    margin: -0.5rem -0.5rem 0 0;
 }
 
 .modal-header>h2 {
@@ -114,7 +115,7 @@ onMounted(async () => {
 }
 
 .modal-header>div>* {
-    padding: 0 14px 2px;
+    padding: 0 1rem 0.1rem;
 }
 
 .modal-content {
@@ -122,27 +123,27 @@ onMounted(async () => {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 0.5em 0;
-    gap: 0.5em;
+    padding: 1rem 0;
+    gap: 1rem;
     max-width: min-content;
 }
 
 .modal-footer {
     display: flex;
     justify-content: center;
-    padding-bottom: 7px;
+    padding-bottom: 0.75rem;
 }
 
 input {
     background-color: transparent;
-    border: 3px solid transparent;
+    border: 0.2rem solid transparent;
     font-size: inherit;
     color: inherit;
     text-shadow: inherit;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     text-align: center;
     font-weight: inherit;
-    max-width: 250px;
+    max-width: 15rem;
 }
 
 input:focus {

@@ -146,17 +146,17 @@ div {
     flex-direction: column;
     align-items: center;
     max-width: 800px;
-    margin: 1em 1em;
+    margin-top: 2rem;
 }
 
 h1 {
-    font-size: 1.25rem;
+    font-size: 1.75rem;
     font-weight: bold;
     display: flex;
 }
 
 p {
-    font-size: 20px;
+    font-size: 1.25rem;
     font-weight: normal;
 }
 </style>

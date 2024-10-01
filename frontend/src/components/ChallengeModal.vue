@@ -20,6 +20,12 @@ function goToNextChallenge() {
     hideModal();
     router.replace(`/challenge/${+props.id + 1}`);
 }
+
+function goToSelection() {
+    hideModal();
+    router.replace('/challenges');
+}
+
 </script>
 
 
@@ -27,6 +33,7 @@ function goToNextChallenge() {
     <div class="modal-backdrop">
         <div class="modal card">
             <div class="modal-header">
+                <h2></h2>
                 <div>
                     <Button color="red" @click="hideModal">
                         x
@@ -45,6 +52,9 @@ function goToNextChallenge() {
                 </Button>
                 <Button v-if="success" color="orange" @click="goToNextChallenge">
                     {{ language.getText("next") }}
+                </Button>
+                <Button v-else color="orange" @click="goToSelection">
+                    {{ language.getText("back") }}
                 </Button>
             </div>
         </div>
@@ -76,15 +86,16 @@ function goToNextChallenge() {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 15px;
+    padding: 1rem;
     max-width: min-content;
 }
 
 .modal-header {
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: -10px -10px 0 0;
+    margin: -0.5rem -0.5rem 0 0;
 }
 
 .modal-header>h2 {
@@ -92,28 +103,28 @@ function goToNextChallenge() {
 }
 
 .modal-header>div>* {
-    padding: 0 14px 2px;
+    padding: 0 1rem 0.1rem;
 }
+
 
 .modal-content {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 0.5em 0;
-    gap: 0.5em;
+    padding: 1rem 0;
+    gap: 1rem;
     max-width: min-content;
 }
 
 .modal-footer {
-    display: grid;
-    grid-template-columns: repeat(2, auto);
-    align-content: space-between;
-    padding-bottom: 7px;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 0.75rem;
 }
 
 img {
     filter: invert(100%) drop-shadow(0.5px 0.5px 0.5px #0066a2) drop-shadow(-0.5px -0.5px 0.5px #0066a2) drop-shadow(0.5px -0.5px 0.5px #0066a2) drop-shadow(-0.5px 0.5px 0.5px #0066a2) drop-shadow(2px 0 0.5px #0066a2) drop-shadow(0 3px 0.5px #004a87);
-    width: 20px;
+    width: 1.5rem;
 }
 </style>

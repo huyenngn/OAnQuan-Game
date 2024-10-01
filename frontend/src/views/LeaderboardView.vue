@@ -98,8 +98,9 @@ onBeforeMount(async () => {
 .row {
     display: grid;
     grid-template-columns: 1fr 2fr 2fr 1fr;
-    gap: 0.5em;
-    padding: 2px 0.75em;
+    gap: 0.75rem;
+    padding: .2rem 1rem;
+    align-items: center;
 }
 
 .column {
@@ -121,7 +122,7 @@ onBeforeMount(async () => {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
     max-width: 600px;
-    gap: 0.4em;
+    gap: 1rem;
 }
 
 p {
@@ -129,11 +130,18 @@ p {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    height: fit-content;
 }
 
 .filters {
     display: flex;
-    margin: 0.75em;
-    gap: 5px;
+    margin: 2rem;
+    gap: 0.75rem;
+}
+
+@media screen and (max-width: 600px) {
+    p {
+        font-size: 5cqw;
+    }
 }
 </style>
