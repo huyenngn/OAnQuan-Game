@@ -1,54 +1,19 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-
-const DEFAULT_BACKEND_URL = "http://127.0.0.1:8080";
-let GLOBAL_SERVERS = [
-    {
-        long: -120,
-        url: import.meta.env.VITE_BACKEND_NA,
-    },
-    {
-        long: 5,
-        url: import.meta.env.VITE_BACKEND_EU,
-    },
-    {
-        long: 120,
-        url: import.meta.env.VITE_BACKEND_AS,
-    },
-].filter((server) => server.url);
+import { useServers } from "./servers";
 
 const LANGUAGES = ["en", "de", "vn"];
 
 export const useLanguage = defineStore("language", () => {
+    const servers = useServers();
     const language = ref("en");
-    const BACKEND_URL = ref("");
     const country = ref("xx");
-    const isBackendReady = ref(false);
-
-    async function warmUpBackend(long) {
-        while (true) {
-            if (GLOBAL_SERVERS.length === 0) {
-                BACKEND_URL.value = DEFAULT_BACKEND_URL;
-                break;
-            }
-            GLOBAL_SERVERS = GLOBAL_SERVERS.sort(
-                (a, b) => Math.abs(a.long - long) - Math.abs(b.long - long)
-            );
-            BACKEND_URL.value = GLOBAL_SERVERS.shift().url;
-            try {
-                await fetch(BACKEND_URL.value, { method: "GET" });
-                break;
-            } catch (error) {}
-        }
-        console.log("Warmed up backend:", BACKEND_URL.value);
-        isBackendReady.value = true;
-    }
 
     async function fetchIpData() {
         try {
             const response = await fetch("https://ipapi.co/json/");
             const data = await response.json();
-            warmUpBackend(data.longitude);
+            servers.warmUpBackend(data.longitude);
             country.value = data.country_code.toLowerCase();
             if (LANGUAGES.includes(country.value)) {
                 language.value = country.value;
@@ -186,10 +151,8 @@ export const useLanguage = defineStore("language", () => {
 
     return {
         language,
-        BACKEND_URL,
         country,
         getText,
         fetchIpData,
-        isBackendReady,
     };
 });

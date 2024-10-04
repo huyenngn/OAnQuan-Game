@@ -5,12 +5,14 @@ import Game from "@/components/Game.vue";
 import Modal from "@/components/Modal.vue";
 import router from "@/router";
 import { useLanguage } from "@/stores/language";
+import { useServers } from "@/stores/servers";
 import { useStore } from "@/stores/state";
 import { getChallenge } from "@/supabase";
 import { delay } from "@/utils";
 import { onMounted, ref, watch } from "vue";
 
 
+const servers = useServers();
 const language = useLanguage();
 const store = useStore();
 const props = defineProps(["id"]);
@@ -33,7 +35,7 @@ function getEmoji() {
 async function startGame() {
     const challenge = await getChallenge(props.id);
     ideal_moves.value = challenge.ideal_moves;
-    while (language.isBackendReady == false) {
+    while (servers.isBackendReady == false) {
         await delay(500);
     }
     store.addState(challenge);

@@ -4,15 +4,16 @@ import Game from "@/components/Game.vue";
 import Medal from "@/components/Medal.vue";
 import Modal from "@/components/Modal.vue";
 import { useLanguage } from "@/stores/language";
+import { useServers } from "@/stores/servers";
 import { useStore } from "@/stores/state";
 import { addEntry, getRank } from '@/supabase';
 import { delay } from "@/utils";
-import axios from "axios";
 import { onMounted, ref } from "vue";
 
 const INITIAL_BOARD = [10, 5, 5, 5, 5, 5, 10, 5, 5, 5, 5, 5];
 const INITIAL_SCORE = { PLAYER: 0, COMPUTER: 0 };
 
+const servers = useServers();
 const language = useLanguage();
 const store = useStore();
 const props = defineProps(["difficulty"]);
@@ -25,16 +26,16 @@ const name = ref(null);
 const score = ref(0);
 
 async function startGame() {
-    while (language.isBackendReady == false) {
+    while (servers.isBackendReady == false) {
         await delay(500);
     }
     try {
-        const response = await axios.get(language.BACKEND_URL + "/game/start/" + props.difficulty);
-        store.addState(response.data);
+        const data = await servers.makeRequest("get", "/game/start/" + props.difficulty);
+        store.addState(data);
         game.value.board = INITIAL_BOARD;
         game.value.score = INITIAL_SCORE;
         game.value.winner = "";
-        const next_move = response.data.last_move;
+        const next_move = data.last_move;
         if (next_move) {
             game.value.turn = "COMPUTER";
             game.value.isTurn = false;

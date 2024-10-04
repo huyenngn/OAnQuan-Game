@@ -5,9 +5,9 @@ import Counter from '@/components/Counter.vue';
 import Loading from '@/components/Loading.vue';
 import Quan from '@/components/Quan.vue';
 import { useLanguage } from "@/stores/language";
+import { useServers } from '@/stores/servers';
 import { useStore } from "@/stores/state";
 import { delay } from "@/utils";
-import axios from 'axios';
 import { onBeforeMount, onBeforeUnmount, onMounted, ref } from "vue";
 
 const QUAN_FIELDS = [0, 6];
@@ -17,6 +17,7 @@ const DELAY = 700;
 const SPEDUP_DELAY = 200;
 const BOARD_SIZE = 12;
 
+const servers = useServers();
 const language = useLanguage();
 const store = useStore();
 const props = defineProps({
@@ -167,20 +168,23 @@ async function makeMove(pos, direction) {
     try {
         isTurn.value = false;
         turn.value = "PLAYER";
-        await animateMove(pos, direction);
-        const response = await axios.post(language.BACKEND_URL + "/game/move/" + props.difficulty, {
-            game: store.getCurrentState().game,
-            move: { pos, direction },
+        const animated = animateMove(pos, direction);
+        const data = await servers.makeRequest("post", "/game/move/" + props.difficulty, {
+            data: {
+                game: store.getCurrentState().game,
+                move: { pos, direction },
+            }
         });
-        store.addState(response.data);
-        let next_move = response.data.last_move;
+        store.addState(data);
+        await animated;
+        let next_move = data.last_move;
         if (next_move) {
             turn.value = "COMPUTER";
             await animateMove(next_move.pos, next_move.direction);
         }
         if (await checkEnd()) {
             isTurn.value = false;
-            winner.value = response.data.winner;
+            winner.value = data.winner;
             emit("gameEnded");
         }
         if (JSON.stringify(board.value) != JSON.stringify(store.getCurrentState().game.board)) {

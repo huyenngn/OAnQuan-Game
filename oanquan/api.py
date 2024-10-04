@@ -63,7 +63,7 @@ def make_ab_move(game: OAnQuan) -> Move:
     return make_random_move(game)
 
 
-@app.post("/game/hint")
+@app.post("/game/hint", status_code=200)
 def get_hint(game: OAnQuan) -> dict[str, t.Any]:
     """Get a hint for the next move."""
     maximizing = game.get_current_player() == Player.COMPUTER
@@ -72,7 +72,7 @@ def get_hint(game: OAnQuan) -> dict[str, t.Any]:
     return make_random_move(game).model_dump()
 
 
-@app.get("/game/start/{difficulty}")
+@app.get("/game/start/{difficulty}", status_code=200)
 def start_game(difficulty: Difficulty):
     """Start a new game of O An Quan."""
     game = OAnQuan.start_game()
@@ -89,7 +89,7 @@ def start_game(difficulty: Difficulty):
     }
 
 
-@app.post("/game/move/{difficulty}")
+@app.post("/game/move/{difficulty}", status_code=200)
 def make_move(game: OAnQuan, move: Move, difficulty: Difficulty):
     """Make a move and get the computer's response"""
 

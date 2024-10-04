@@ -13,17 +13,17 @@ You can host the API server and the frontend on your own machine.
 
 Add the backend URLs to an `.env` file in the `frontend` directory (optional):
 
-```sh
-echo "VITE_BACKEND_NA={VITE_BACKEND_NA}" >> frontend/.env
-echo "VITE_BACKEND_EU={VITE_BACKEND_EU}" >> frontend/.env
-echo "VITE_BACKEND_AS={VITE_BACKEND_AS}" >> frontend/.env
+```bash
+VITE_BACKEND_NA={VITE_BACKEND_NA}
+VITE_BACKEND_EU={VITE_BACKEND_EU}
+VITE_BACKEND_AS={VITE_BACKEND_AS}
 ```
 
 Add your Supabase URL and key to the `.env` file in the `frontend` directory:
 
-```sh
-echo "VITE_SUPABASE_URL={SUPABASE_URL}" >> frontend/.env
-echo "VITE_SUPABASE_KEY={SUPABASE_KEY}" >> frontend/.env
+```bash
+VITE_SUPABASE_URL={SUPABASE_URL}
+VITE_SUPABASE_KEY={SUPABASE_KEY}
 ```
 
 Build and run the app with Docker:
@@ -70,4 +70,6 @@ The backend server will be running at `http://localhost:8080` and the live front
 -   [x] Play Ô ăn quan AI in easy mode
 -   [x] Minimax algorithm with Alpha-Beta pruning for normal and hard mode
 -   [x] Leaderboard
+-   [x] Challenge mode
+-   [x] User profile and authentication
 -   [ ] Send real game data to cloud for training and analysis
