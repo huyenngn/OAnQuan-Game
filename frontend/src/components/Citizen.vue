@@ -28,10 +28,13 @@ const props = defineProps({
 </script>
 
 <template>
-    <div :id="'field' + id" @click="setSelectedCitizen(id)"
-        :class="'citizen' + (highlightedField == id ? ' ' + color : '') + (clickable ? ' clickable' : '')">
+    <div :id="'field' + id" @click="setSelectedCitizen(id)" :class="{
+        'citizen': true,
+        [color]: highlightedField == id,
+        'unclickable': !clickable || count == 0
+    }">
         <Counter :count="count" :id="'counter' + id" />
-        <Direction v-if="selectedCitizen == id && count != 0" :display="direction" @left="makeMove(id, 1)"
+        <Direction v-if="selectedCitizen == id" :display="direction" @left="makeMove(id, 1)"
             @right="makeMove(id, -1)" />
     </div>
 </template>
@@ -46,6 +49,8 @@ const props = defineProps({
     pointer-events: none;
     position: relative;
     z-index: 10;
+    cursor: pointer;
+    pointer-events: all;
 }
 
 .red {
@@ -61,10 +66,5 @@ const props = defineProps({
 .green {
     background-color: #8ae994;
     mix-blend-mode: multiply;
-}
-
-.clickable {
-    cursor: pointer;
-    pointer-events: all;
 }
 </style>

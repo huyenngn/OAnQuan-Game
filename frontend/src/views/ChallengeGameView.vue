@@ -1,7 +1,9 @@
 <script setup>
-import ChallengeModal from "@/components/ChallengeModal.vue";
+import Button from "@/components/Button.vue";
 import Counter from "@/components/Counter.vue";
 import Game from "@/components/Game.vue";
+import Modal from "@/components/Modal.vue";
+import router from "@/router";
 import { useLanguage } from "@/stores/language";
 import { useStore } from "@/stores/state";
 import { getChallenge } from "@/supabase";
@@ -63,25 +65,60 @@ async function gameEnded() {
     modal.value.showModal();
 }
 
+function goToNextChallenge() {
+    modal.value.hideModal();
+    router.replace(`/challenge/${+props.id + 1}`);
+}
+
+function goToSelection() {
+    modal.value.hideModal();
+    router.replace('/challenges');
+}
+
 onMounted(async () => {
     await startGame();
 });
 </script>
 
 <template>
-    <span>{{ getEmoji() }} {{ language.getText("challengePre") }} {{ ideal_moves }} {{
+    <span class="view-title">{{ getEmoji() }} {{ language.getText("challengePre") }} {{ ideal_moves }} {{
         language.getText("challengePost") }} (
         <Counter class="moves-tracker" :count="moves - 1" id="moves-counter" />)
     </span>
     <Game difficulty="hard" @gameEnded="gameEnded" ref="game" />
-    <ChallengeModal v-if="displayModal" :success="success" :id="props.id" ref="modal" />
+    <Modal v-if="displayModal" ref="modal">
+        <template #title>
+            {{ success ? language.getText("success") : language.getText("fail") }}
+        </template>
+        <template #footer>
+            <Button @click="$router.go()" class="reload-button">
+                <img src="../assets/reload.png" />
+            </Button>
+            <Button v-if="success" color="orange" @click="goToNextChallenge">
+                {{ language.getText("next") }}
+            </Button>
+            <Button v-else color="orange" @click="goToSelection">
+                {{ language.getText("back") }}
+            </Button>
+        </template>
+    </Modal>
 </template>
 
 <style scoped>
-span {
+.view-title {
     font-weight: 900;
     display: flex;
     justify-content: center;
     margin-bottom: 1rem;
+    min-width: max-content;
+}
+
+img {
+    filter: invert(100%) drop-shadow(0.5px 0.5px 0.5px #0066a2) drop-shadow(-0.5px -0.5px 0.5px #0066a2) drop-shadow(0.5px -0.5px 0.5px #0066a2) drop-shadow(-0.5px 0.5px 0.5px #0066a2) drop-shadow(2px 0 0.5px #0066a2) drop-shadow(0 3px 0.5px #004a87);
+    width: 1.5rem;
+}
+
+.reload-button {
+    line-height: 1.2rem;
 }
 </style>

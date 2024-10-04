@@ -19,7 +19,7 @@ const emit = defineEmits(['left', 'right']);
     grid-template-rows: 1fr;
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
-    width: 150%;
+    width: 140%;
     z-index: 20;
 }
 

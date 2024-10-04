@@ -3,10 +3,37 @@ const props = defineProps(["color"]);
 </script>
 
 <template>
-    <div :class="'game-button' + (props.color ? ' ' + props.color : '')">
+    <div :class="{
+        'game-button': true,
+        [color]: color
+    }">
         <slot></slot>
     </div>
 </template>
+
+<style>
+.game-button img {
+    filter: invert(100%) drop-shadow(0.5px 0.5px 0.5px #0066a2) drop-shadow(-0.5px -0.5px 0.5px #0066a2) drop-shadow(0.5px -0.5px 0.5px #0066a2) drop-shadow(-0.5px 0.5px 0.5px #0066a2) drop-shadow(2px 0 0.5px #0066a2) drop-shadow(0 3px 0.5px #004a87);
+    width: 1.5rem;
+}
+
+.game-button.orange img {
+    filter: invert(100%) drop-shadow(0.5px 0.5px 0.5px #e78700) drop-shadow(-0.5px -0.5px 0.5px #e78700) drop-shadow(0.5px -0.5px 0.5px #e78700) drop-shadow(-0.5px 0.5px 0.5px #e78700) drop-shadow(2px 0 0.5px #e78700) drop-shadow(0 3px 0.5px #c96100);
+}
+
+.game-button.red img {
+    filter: invert(100%) drop-shadow(0.5px 0.5px 0.5px #d72d21) drop-shadow(-0.5px -0.5px 0.5px #d72d21) drop-shadow(0.5px -0.5px 0.5px #d72d21) drop-shadow(-0.5px 0.5px 0.5px #d72d21) drop-shadow(2px 0 0.5px #d72d21) drop-shadow(0 3px 0.5px #930704);
+}
+
+
+.game-button.green img {
+    filter: invert(100%) drop-shadow(0.5px 0.5px 0.5px #54d440) drop-shadow(-0.5px -0.5px 0.5px #54d440) drop-shadow(0.5px -0.5px 0.5px #54d440) drop-shadow(-0.5px 0.5px 0.5px #54d440) drop-shadow(2px 0 0.5px #54d440) drop-shadow(0 3px 0.5px #1d4c16);
+}
+
+.game-button.grey img {
+    filter: invert(100%) drop-shadow(0.5px 0.5px 0.5px #b0b0b0) drop-shadow(-0.5px -0.5px 0.5px #b0b0b0) drop-shadow(0.5px -0.5px 0.5px #b0b0b0) drop-shadow(-0.5px 0.5px 0.5px #b0b0b0) drop-shadow(2px 0 0.5px #b0b0b0) drop-shadow(0 3px 0.5px #3b3b3b);
+}
+</style>
 
 <style scoped>
 /* https://codepen.io/Rybak/pen/xdzXNj */
@@ -22,7 +49,7 @@ const props = defineProps(["color"]);
     letter-spacing: .1rem;
     text-shadow: 2px 2px 1px #0066a2, -2px 2px 1px #0066a2, 2px -2px 1px #0066a2, -2px -2px 1px #0066a2, 0px 2px 1px #0066a2, 0px -2px 1px #0066a2, 0px 4px 1px #004a87, 2px 4px 1px #004a87, -2px 4px 1px #004a87;
     border: none;
-    margin: 0 0.75rem 1.25rem;
+    margin: 0 0.4rem 1.25rem;
     background: repeating-linear-gradient(45deg, #3ebbf7, #3ebbf7 5px, #45b1f4 5px, #45b1f4 10px);
     border-bottom: 3px solid rgba(16, 91, 146, 0.5);
     border-top: 3px solid rgba(255, 255, 255, .3);
@@ -59,6 +86,8 @@ const props = defineProps(["color"]);
     border-radius: 99px;
 }
 
+
+
 .game-button.orange {
     background: repeating-linear-gradient(45deg, #ffc800, #ffc800 5px, #ffc200 5px, #ffc200 10px);
     box-shadow: 0 6px 0 #b76113, 0 8px 1px 1px rgba(0, 0, 0, .3), 0 10px 0 5px #75421f, 0 12px 0 5px #8a542b, 0 15px 0 5px #593116, 0 15px 1px 6px rgba(0, 0, 0, .3);
@@ -94,6 +123,8 @@ const props = defineProps(["color"]);
     top: .1rem;
     box-shadow: 0 4px 0 #348628, 0 6px 1px 1px rgba(0, 0, 0, .3), 0 8px 0 5px #2a6d20, 0 10px 0 5px #39822e, 0 13px 0 5px #1d4c16, 0 13px 1px 6px rgba(0, 0, 0, .3);
 }
+
+
 
 .game-button.grey {
     background: repeating-linear-gradient(45deg, #b0b0b0, #b0b0b0 5px, #a8a8a8 5px, #a8a8a8 10px);

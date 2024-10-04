@@ -201,7 +201,9 @@ function toggleSpeed() {
 }
 
 function handleClickOutside(event) {
-    if (event.target.closest('.exclude-click-outside')) return;
+    if (event.target.closest('.exclude-click-outside')) {
+        return;
+    }
     if (!event.target.closest('.citizen')) {
         selectedCitizen.value = null;
     }
@@ -225,7 +227,7 @@ onBeforeUnmount(() => {
 
 <template>
     <div class="controls">
-        <Button @click="undo()">
+        <Button @click="undo()" :class="{ 'unclickable': !isTurn, 'grey': !isTurn }">
             <img src="../assets/undo.svg" />
         </Button>
         <Button @click="$router.go()">
@@ -235,12 +237,13 @@ onBeforeUnmount(() => {
             {{ language.getText("back") }}
         </Button>
         <Button v-if="spedUp" @click="toggleSpeed" class="green exclude-click-outside">
-            <img src="../assets/pause.png" class="green" />
+            <img src="../assets/pause.png" />
         </Button>
         <Button v-else @click="toggleSpeed" class="exclude-click-outside">
             <img src="../assets/fast_forward.png" />
         </Button>
-        <Button @click="getHint()" class="exclude-click-outside">
+        <Button @click="getHint()"
+            :class="{ 'unclickable': !isTurn || hintsLeft == 0, 'exclude-click-outside': true, 'grey': !isTurn || hintsLeft == 0 }">
             <img src="../assets/hint.svg" />
         </Button>
         <span class="hint-tracker">
@@ -286,6 +289,13 @@ onBeforeUnmount(() => {
     <Loading v-else />
 </template>
 
+<style>
+.unclickable {
+    pointer-events: none !important;
+    cursor: default;
+}
+</style>
+
 <style scoped>
 .game {
     width: 100%;
@@ -295,14 +305,15 @@ onBeforeUnmount(() => {
 }
 
 .controls {
-    margin-bottom: -1rem;
-}
-
-.controls,
-.controls>div {
+    margin-bottom: -1.5rem;
     display: grid;
     grid-template-columns: repeat(5, auto);
     align-items: center;
+    gap: 0.75rem;
+}
+
+.controls>div {
+    display: flex;
 }
 
 .hint-tracker {
@@ -312,15 +323,6 @@ onBeforeUnmount(() => {
     font-weight: 900;
     display: flex;
     justify-content: center;
-}
-
-img {
-    filter: invert(100%) drop-shadow(0.5px 0.5px 0.5px #0066a2) drop-shadow(-0.5px -0.5px 0.5px #0066a2) drop-shadow(0.5px -0.5px 0.5px #0066a2) drop-shadow(-0.5px 0.5px 0.5px #0066a2) drop-shadow(2px 0 0.5px #0066a2) drop-shadow(0 3px 0.5px #004a87);
-    width: 1.5rem;
-}
-
-img.green {
-    filter: invert(100%) drop-shadow(0.5px 0.5px 0.5px #54d440) drop-shadow(-0.5px -0.5px 0.5px #54d440) drop-shadow(0.5px -0.5px 0.5px #54d440) drop-shadow(-0.5px 0.5px 0.5px #54d440) drop-shadow(2px 0 0.5px #54d440) drop-shadow(0 3px 0.5px #1d4c16);
 }
 
 .board {

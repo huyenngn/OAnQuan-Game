@@ -9,7 +9,7 @@ const language = useLanguage();
 const progress = ref(0);
 const totalChallenges = ref(0);
 const displayedChallenges = computed(() => {
-    const n = progress.value + 20
+    const n = +progress.value + 20
     if (n < totalChallenges.value) {
         return n;
     } else {
@@ -79,6 +79,6 @@ onBeforeMount(async () => {
     width: 100%;
     height: 7rem;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--color-background) 60%);
-    z-index: 1;
+    z-index: 10;
 }
 </style>
